@@ -9,6 +9,8 @@ body {
     /*font-family: 'VT323', monospace;*/
     color: white;
     background-color: black;
+    
+    cursor:url(../img/GameView/crosshair.png), auto;
 
     /* unselectable ~ make nothing selectable */
     -webkit-touch-callout: none;
@@ -23,11 +25,66 @@ body {
 }
 
 canvas {
+  /*
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+  image-rendering: pixelated; 
+  image-rendering: crisp-edges; 
+  */
+  image-rendering: optimizeQuality;
 }
+
+#game-container {
+  width: 600px;
+  height: 600px;
+}
+
+#menu-view {
+  background-color: rgb(255, 255, 255);
+  background-image: url("../img/MenuView/MenuView.png");
+  background-size:cover;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+#game-view {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+#play-button {
+  position: relative;
+  top: 45%;
+  background-color: #4CAF50;
+  border-radius: 15px;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 64px;
+}
+
+#leaderboard-button {
+  position: relative;
+  top: 52%;
+  background-color: #20bae0; 
+  border-radius: 15px;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 64px;
+}
+
+
+
+
 
 /* if adding images outside of canvas
 img {

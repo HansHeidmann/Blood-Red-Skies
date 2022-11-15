@@ -1,17 +1,42 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-        <title>Airplane Game</title>
+        <title>Blood Red Skies</title>
         <link rel="stylesheet" href="css/style.css" type="text/css">
-        <script src="modules/main.js" type="text/javascript"></script>
-
+        <script src="https://pixijs.download/release/pixi.js"></script>
+        
+        <script type="module" src="main.js"></script>
+        
     </head>
+
     <body>
-        <canvas id="canvas" width="800" height="800"></canvas>
+
+        <div id="game-container" style="width: 600px; height: 600px;">
+            <!-- MENU VIEW -->
+            <div id="menu-view">
+                <button id="play-button">Play</button>
+                </br></br>
+                <button id="leaderboard-button">High Scores</button>
+            </div>
+
+            <!-- LEADERBOARD VIEW -->
+            <div id="leaderboard-view" style="display:none;">C</div>
+
+            <!-- GAME VIEW -->
+            <div id="game-view" style="display:none;">
+                <!--<canvas id="canvas" width="600" height="600"></canvas>-->
+            </div>
+
+            <!-- GAMEOVER VIEW -->
+            <div id="gameover-view" style="display:none;">
+                <button id="retry-button">Play Again</button>
+                </br></br>
+                <button id="post-button">Post Score</button>
+            </div>
+        </div>
+
     </body>
-    <script>
-        document.addEventListener("DOMContentLoaded", run);
-    </script>
 </html>
