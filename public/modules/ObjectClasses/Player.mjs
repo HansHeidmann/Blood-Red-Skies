@@ -30,6 +30,7 @@ class Player {
         // X and Y position
         this.sprite.x = this.gameView.game.screen.width/2;
         this.sprite.y = this.gameView.game.screen.height/2;
+        this.sprite.displayGroup = gameView.playerLayer;
         
         // Width and Height
         this.sprite.width = 100;

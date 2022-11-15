@@ -5,6 +5,8 @@ import { Bullet } from '../ObjectClasses/Bullet.mjs';
 import { Map } from '../ObjectClasses/Map.mjs';
 import { Blood } from '../ObjectClasses/Blood.mjs';
 
+//import { Container, Graphics, Sprite } from 'pixi.js';
+
 export default class GameView {
 
     width; // game width
@@ -29,6 +31,7 @@ export default class GameView {
 
     moveSpeed;
 
+    groundLayer;
 
     constructor(viewController) {
 
@@ -41,6 +44,20 @@ export default class GameView {
             background: '#707070'
         });
         document.getElementById("game-view").appendChild(this.game.view);
+
+        // Z-Index Layers
+        this.groundLayer = new PIXI.Container();
+        this.game.stage.addChild(this.groundLayer);
+        this.bloodLayer = new PIXI.Container();
+        this.game.stage.addChild(this.bloodLayer);
+        this.bulletsLayer = new PIXI.Container();
+        this.game.stage.addChild(this.bulletsLayer);
+        this.monstersLayer = new PIXI.Container();
+        this.game.stage.addChild(this.monstersLayer);
+        this.playerLayer = new PIXI.Container();
+        this.game.stage.addChild(this.playerLayer);
+        this.guiLayer = new PIXI.Container();
+        this.game.stage.addChild(this.guiLayer);
 
 
         this.gameOver = false;
@@ -57,17 +74,18 @@ export default class GameView {
         this.keyboardHandler = new KeyboardHandler(this);
         
         // add ground
+        
         this.ground = new Map(this);
-        this.game.stage.addChild(this.ground.sprite);
+        this.groundLayer.addChild(this.ground.sprite);
 
         // add player
         this.player = new Player(this);
-        this.game.stage.addChild(this.player.sprite);
+        this.playerLayer.addChild(this.player.sprite);
 
         // add monster
         this.monsters = [];
         this.monsters[0] = new Monster(this);
-        this.game.stage.addChild(this.monsters[0].sprite);
+        this.monstersLayer.addChild(this.monsters[0].sprite);
 
         // Blood
         this.blood = [];
@@ -122,7 +140,7 @@ export default class GameView {
                     let bloodY = tempMonster.sprite.y;
                     let tempBlood = new Blood(this, bloodX, bloodY);
                     this.blood.push(tempBlood);
-                    this.game.stage.addChild(tempBlood.sprite);
+                    this.bloodLayer.addChild(tempBlood.sprite);
                 }
             }
         }
@@ -132,7 +150,15 @@ export default class GameView {
             // Move all Bullets in bulletsArray
             let tempBlood = this.blood[i];
             tempBlood.move(wKey, aKey, sKey, dKey);
-            // Check to see if Bullet hit a Monster
+            // fade blood as time passes
+            tempBlood.sprite.alpha -= .002;
+            // Remove the oldest blood whenever maxBlood blood sprites exist 
+            if(this.blood.length == 300) {
+                this.bloodLayer.removeChild(this.blood[0].sprite);
+                this.blood[0].sprite.destroy();
+                this.blood[0] = null;
+                this.blood.shift();
+            }
         }
         
 
@@ -155,7 +181,7 @@ export default class GameView {
             var tempBullet = new Bullet(parent, shootDirection, gunLength);
             parent.bullets.push(tempBullet);
             // add the bullet sprite to the game stage
-            parent.game.stage.addChild(tempBullet.sprite);
+            parent.bulletsLayer.addChild(tempBullet.sprite);
         }
     }
    

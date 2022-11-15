@@ -25,6 +25,7 @@ class Monster {
         // X and Y position
         this.sprite.x = Math.random()*gameView.game.screen.width;
         this.sprite.y = Math.random()*gameView.game.screen.height;
+        this.sprite.displayGroup = gameView.monstersLayer;
 
         
         // Width and Height
@@ -92,7 +93,7 @@ class Monster {
       
         // if the distance is less than the circle's
         // radius the point is inside!
-        if (distance <= 100) {
+        if (distance <= 25) {
           return true;
         }
         return false;

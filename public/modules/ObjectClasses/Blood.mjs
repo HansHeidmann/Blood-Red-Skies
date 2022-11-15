@@ -16,12 +16,13 @@ class Blood {
         this.sprite.anchor.set(0.5);
         
         // X and Y Position
-        this.sprite.x = x;
-        this.sprite.y = y;
+        this.sprite.x = x - 10 + Math.random()*20;
+        this.sprite.y = y - 10 + Math.random()*20;
+        this.sprite.displayGroup = gameView.bloodLayer;
 
         // Width, Height, Rotation
         this.sprite.width = Math.random() * 20;
-        this.sprite.height = Math.random() * 20;
+        this.sprite.height = Math.random() * 10;
         this.sprite.rotation = Math.random() * (2 * Math.PI);
 
         this.playerMoveSpeed = gameView.moveSpeed
@@ -43,11 +44,6 @@ class Blood {
         }
         
     }
-
-    
-
-    
-
 
     
    
