@@ -17,6 +17,7 @@ class Player {
     ammo;
     gunLength;
 
+
     constructor(gameView) {
 
         this.gameView = gameView;
@@ -29,7 +30,6 @@ class Player {
         // X and Y position
         this.sprite.x = this.gameView.game.screen.width/2;
         this.sprite.y = this.gameView.game.screen.height/2;
-        this.sprite.z = 10;
         
         // Width and Height
         this.sprite.width = 100;
@@ -41,6 +41,7 @@ class Player {
         // Gun and Ammo preparations
         this.ammo = 10;
         this.gunLength = 50;
+
 
     }
     

@@ -1,7 +1,5 @@
-class Map {
+class Blood {
     
-    gameView;
-
     width;
     height; 
 
@@ -10,30 +8,28 @@ class Map {
 
     playerMoveSpeed;
 
-
-    constructor(gameView) {
+    constructor(gameView, x, y) {
         
-        this.gameView = gameView;
-
         // Sprite Initialization
-        this.img = "../../img/GameView/ground.png";
+        this.img = "../../img/GameView/blood.png";
         this.sprite = PIXI.Sprite.from(this.img);
         this.sprite.anchor.set(0.5);
         
-        // X and Y position
-        this.sprite.x = gameView.game.screen.width/2;
-        this.sprite.y = gameView.game.screen.height/2;
+        // X and Y Position
+        this.sprite.x = x;
+        this.sprite.y = y;
 
-        
-        // Width and Height
-        this.sprite.width = 10000;
-        this.sprite.height = 10000;
+        // Width, Height, Rotation
+        this.sprite.width = Math.random() * 20;
+        this.sprite.height = Math.random() * 20;
+        this.sprite.rotation = Math.random() * (2 * Math.PI);
 
-        this.playerMoveSpeed = gameView.moveSpeed;
+        this.playerMoveSpeed = gameView.moveSpeed
 
     }
-    
-    move(w, a, s, d) {
+
+    move(w,a,s,d) {
+
         if((w && a) || (a && s) || (s && d) || (d && w)) {
             this.sprite.y += w * this.playerMoveSpeed * Math.sqrt(2)/2;
             this.sprite.y -= s * this.playerMoveSpeed * Math.sqrt(2)/2;
@@ -45,7 +41,10 @@ class Map {
             this.sprite.x += a * this.playerMoveSpeed;
             this.sprite.x -= d * this.playerMoveSpeed;
         }
+        
     }
+
+    
 
     
 
@@ -55,4 +54,4 @@ class Map {
     
 }
 
-export { Map }
+export { Blood }

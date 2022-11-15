@@ -3,6 +3,7 @@ import { Player } from '../ObjectClasses/Player.mjs';
 import { Monster } from '../ObjectClasses/Monster.mjs';
 import { Bullet } from '../ObjectClasses/Bullet.mjs';
 import { Map } from '../ObjectClasses/Map.mjs';
+import { Blood } from '../ObjectClasses/Blood.mjs';
 
 export default class GameView {
 
@@ -26,16 +27,13 @@ export default class GameView {
     powerups;
     monsters;
 
+    moveSpeed;
+
 
     constructor(viewController) {
 
         this.width = document.getElementById("game-container").offsetWidth;
         this.height = document.getElementById("game-container").offsetHeight;
-
-        this.frame = 0;
-        this.gameOver = false;
-        
-        this.frameRate = 60; // 60 frames per second
 
         this.game = new PIXI.Application({
             width: this.width,
@@ -43,6 +41,10 @@ export default class GameView {
             background: '#707070'
         });
         document.getElementById("game-view").appendChild(this.game.view);
+
+
+        this.gameOver = false;
+        this.moveSpeed = 3;
 
         // start main GAME LOOP
         this.game.ticker.add((delta) => this.loop());
@@ -67,12 +69,17 @@ export default class GameView {
         this.monsters[0] = new Monster(this);
         this.game.stage.addChild(this.monsters[0].sprite);
 
+        // Blood
+        this.blood = [];
+
         // listen for mouse clicks to shoot()
         this.shoot(this);
 
         this.bullets = [];
         // start the loop
-        this.loop();
+        //this.loop();
+
+        
        
     }
 
@@ -81,27 +88,60 @@ export default class GameView {
     
     loop() {
 
+        // Get current state of movement keys
+        let wKey = this.keyboardHandler.wKeyDown;
+        let aKey = this.keyboardHandler.aKeyDown;
+        let sKey = this.keyboardHandler.sKeyDown;
+        let dKey = this.keyboardHandler.dKeyDown;
+
+        // Move ground under player
+        this.ground.move(wKey, aKey, sKey, dKey);
+
+
         // Bullet(s) 
         for (let i=0; i<this.bullets.length; i++) {
             // Move all Bullets in bulletsArray
-            this.bullets[i].move();
+            let tempBullet = this.bullets[i];
+            tempBullet.move(wKey, aKey, sKey, dKey);
             // Check to see if Bullet hit a Monster
         }
 
         // Monster(s) 
-        for (let i=0; i<this.monsters.length; i++) {
+        for (let m=0; m<this.monsters.length; m++) {
             // Move all Bullets in bulletsArray
-            this.monsters[i].move();
+            let tempMonster = this.monsters[m];
+            tempMonster.move(wKey, aKey, sKey, dKey);
             // Check to see if Bullet hit a Monster
+            for (let b=0; b<this.bullets.length; b++) {
+                let tempBulletX = this.bullets[b].sprite.x;
+                let tempBulletY = this.bullets[b].sprite.y;
+                if (tempMonster.hitTest(tempBulletX, tempBulletY)) {
+                    //this.blood[this.blood.length] = 
+                    console.log("hit!");
+                    let bloodX = tempMonster.sprite.x;
+                    let bloodY = tempMonster.sprite.y;
+                    let tempBlood = new Blood(this, bloodX, bloodY);
+                    this.blood.push(tempBlood);
+                    this.game.stage.addChild(tempBlood.sprite);
+                }
+            }
         }
 
+        // Blood
+        for (let i=0; i<this.blood.length; i++) {
+            // Move all Bullets in bulletsArray
+            let tempBlood = this.blood[i];
+            tempBlood.move(wKey, aKey, sKey, dKey);
+            // Check to see if Bullet hit a Monster
+        }
+        
 
         this.frame++;
         //console.log("main loop iteration " + this.frame);
 
         
         // if gameOver == false --> run loop() again : else --> GAMEOVER
-        !this.gameOver ? this.loopTimeoutId = setTimeout(this.loop.bind(this), 1000/this.frameRate) : console.log("GAME OVER");
+        //!this.gameOver ? this.loopTimeoutId = setTimeout(this.loop.bind(this), 1000/this.frameRate) : console.log("GAME OVER");
             
     }
     

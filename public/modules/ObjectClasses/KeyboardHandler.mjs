@@ -20,46 +20,46 @@ class KeyboardHandler {
     handle(parent) {
         window.onkeydown = function keyEvent(event) {
             if(event.key == "w") {
-                console.log("w");
+                //console.log("w");
                 parent.wKeyDown = true;
             }
             if(event.key == "a") {
-                console.log("a");
+                //console.log("a");
                 parent.aKeyDown = true;
             }
             if(event.key == "s") {
-                console.log("s");
+                //console.log("s");
                 parent.sKeyDown = true;
             }
             if(event.key == "d") {
-                console.log("d");
+                //onsole.log("d");
                 parent.dKeyDown = true;
             }
             if(event.key == " ") {
-                console.log("space");
+                //console.log("space");
                 parent.spaceKeyDown = true;
             }
         }
-        window.onkeyup = function keyEvent(event) {
+        window.onkeyup = function otherKeyEvent(event) {
             if(event.key == "w") {
-                console.log("w up");
-                this.wKeyDown = false;
+                //console.log("w up");
+                parent.wKeyDown = false;
             }
             if(event.key == "a") {
-                console.log("a up");
-                this.aKeyDown = false;
+                //console.log("a up");
+                parent.aKeyDown = false;
             }
             if(event.key == "s") {
-                console.log("s up");
-                this.sKeyDown = false;
+                //console.log("s up");
+                parent.sKeyDown = false;
             }
             if(event.key == "d") {
-                console.log("d up");
-                this.dKeyDown = false;
+                //console.log("d up");
+                parent.dKeyDown = false;
             }
             if(event.key == " ") {
-                console.log("space up");
-                this.spaceKeyDown = false;
+                //console.log("space up");
+                parent.spaceKeyDown = false;
             }
         }
         

@@ -27,7 +27,7 @@ class Bullet {
         this.sprite.height = 20;
 
         // set move Speed
-        this.speed = .1;
+        this.speed = 7;
 
     }
     
