@@ -15,11 +15,11 @@ class Bullet {
         this.sprite = PIXI.Sprite.from(this.img);
         this.sprite.anchor.set(0.5);
         
-        // X and Y position
+        // X, Y position and Z layer
         this.sprite.rotation = direction;
         this.sprite.x = gameView.game.screen.width/2 + Math.cos(this.sprite.rotation) * gunLength;
         this.sprite.y = gameView.game.screen.height/2 + Math.sin(this.sprite.rotation) * gunLength;
-        this.sprite.z = 0;
+        this.sprite.displayGroup = gameView.bulletsLayer;
 
         
         // Width and Height

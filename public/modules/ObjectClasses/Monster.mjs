@@ -7,10 +7,8 @@ class Monster {
 
     img;
     sprite;
-
-    hitImg; // debug
-    hitSprite; // debug
-
+    tintImg;
+    tintSprite;
 
     speed;
     direction;
@@ -26,36 +24,44 @@ class Monster {
         this.sprite = PIXI.Sprite.from(this.img);
         this.sprite.anchor.set(0.5);
         
-        // X and Y position
+        // X, Y position and Z layer
         this.sprite.x = Math.random()*gameView.game.screen.width;
         this.sprite.y = Math.random()*gameView.game.screen.height;
         this.sprite.displayGroup = gameView.monstersLayer;
         
         // Width and Height
-        this.sprite.width = 40;
-        this.sprite.height = 40;
+        let size = 40;
+        this.sprite.width = size;
+        this.sprite.height = size;
 
         // Movement prep
         this.speed = 1;
         this.sprite.rotation = Math.random()*3.14;
         this.playerMoveSpeed = gameView.moveSpeed;
 
-        // "Hit Box" for debug
-        // Sprite Initialization
-        this.hitImg = "../../img/GameView/blood.png";
-        this.hitSprite = PIXI.Sprite.from(this.hitImg);
-        this.hitSprite.anchor.set(0.5);
-        this.hitSprite.x = this.sprite.x
-        this.hitSprite.width = 25;
-        this.hitSprite.height = 25;
+        // Duplicate Sprite for Red Tinting when Hit
+        this.tintImg = "../../img/GameView/vampire/vampire_standing.png";
+        this.tintSprite = PIXI.Sprite.from(this.img);
+        this.tintSprite.anchor.set(0.5);
+        this.tintSprite.x = this.sprite.x;
+        this.tintSprite.y = this.sprite.y;
+        this.tintSprite.displayGroup = gameView.monstersLayer;
+        this.tintSprite.width = size;
+        this.tintSprite.height = size;
+        this.tintSprite.rotation = this.sprite.rotation;
+        this.tintSprite.alpha = 0;
+        this.tintSprite.tint = 16711680;
 
+        // add sprite to gameView
+        gameView.monstersLayer.addChild(this.sprite);
+        gameView.monstersTintLayer.addChild(this.tintSprite);
     }
 
 
     move(w,a,s,d) {
         this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.speed;
         this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.speed;
-
+        
         // randomize movement slightly
         let chance = Math.floor(Math.random()*5);
         if (chance == 0) {
@@ -63,7 +69,6 @@ class Monster {
         }
 
         // simulate player movement
-
         if((w && a) || (a && s) || (s && d) || (d && w)) {
             this.sprite.y += w * this.playerMoveSpeed * Math.sqrt(2)/2;
             this.sprite.y -= s * this.playerMoveSpeed * Math.sqrt(2)/2;
@@ -75,6 +80,11 @@ class Monster {
             this.sprite.x += a * this.playerMoveSpeed;
             this.sprite.x -= d * this.playerMoveSpeed;
         }
+
+        // copy location and rotation for tintSprite
+        this.tintSprite.rotation = this.sprite.rotation;
+        this.tintSprite.x = this.sprite.x;
+        this.tintSprite.y = this.sprite.y;
 
 
         // for testing

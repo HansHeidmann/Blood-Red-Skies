@@ -57,6 +57,8 @@ export default class GameView {
         this.game.stage.addChild(this.bulletsLayer);
         this.monstersLayer = new PIXI.Container();
         this.game.stage.addChild(this.monstersLayer);
+        this.monstersTintLayer = new PIXI.Container();
+        this.game.stage.addChild(this.monstersTintLayer);
         this.playerLayer = new PIXI.Container();
         this.game.stage.addChild(this.playerLayer);
         this.guiLayer = new PIXI.Container();
@@ -88,7 +90,6 @@ export default class GameView {
         for (let m=0; m<10; m++) {
             let tempMonster = new Monster(this);
             this.monsters.push(tempMonster);
-            this.monstersLayer.addChild(tempMonster.sprite);
         }
         console.log(this.monsters);
         
@@ -144,6 +145,8 @@ export default class GameView {
                 let tempBulletY = this.bullets[b].sprite.y; // current bullet Y position
                 if (tempMonster.hitTest(tempBulletX, tempBulletY)) { // is x,y of bullet inside monster's hit radius?
                     console.log("hit!");
+                    // tint hit monster slightly more red
+                    tempMonster.tintSprite.alpha += 0.05;
                     // remove the bullet that hit the monster (object cleanup)
                     this.bulletsLayer.removeChild(this.bullets[b].sprite);
                     this.bullets[b].sprite.destroy();
@@ -153,7 +156,7 @@ export default class GameView {
                         this.bullets.splice(index, 1); // remove the bullet at index (i)
                     }
                     // add some blood below the monster
-                    let bloodAmount = Math.floor(Math.random()*40); // NEEDS TO BE DIFFERENT FOR GUNS
+                    let bloodAmount = Math.floor(Math.random()*20); // NEEDS TO BE DIFFERENT FOR GUNS
                     let bloodX = tempMonster.sprite.x;
                     let bloodY = tempMonster.sprite.y;
                     for (let p=0; p<bloodAmount; p++) {

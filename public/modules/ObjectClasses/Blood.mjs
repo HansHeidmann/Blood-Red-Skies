@@ -15,7 +15,7 @@ class Blood {
         this.sprite = PIXI.Sprite.from(this.img);
         this.sprite.anchor.set(0.5);
         
-        // X and Y Position
+        // X, Y position and Z layer
         this.sprite.x = x - 10 + Math.random()*20;
         this.sprite.y = y - 10 + Math.random()*20;
         this.sprite.displayGroup = gameView.bloodLayer;
@@ -49,7 +49,7 @@ class Blood {
 
     fade() {
         // slightly reduce visibility 
-        this.sprite.alpha -= .001;
+        this.sprite.alpha -= .0005;
     }
     
    
