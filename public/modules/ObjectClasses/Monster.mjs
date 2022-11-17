@@ -8,6 +8,10 @@ class Monster {
     img;
     sprite;
 
+    hitImg; // debug
+    hitSprite; // debug
+
+
     speed;
     direction;
 
@@ -26,17 +30,24 @@ class Monster {
         this.sprite.x = Math.random()*gameView.game.screen.width;
         this.sprite.y = Math.random()*gameView.game.screen.height;
         this.sprite.displayGroup = gameView.monstersLayer;
-
         
         // Width and Height
-        this.sprite.width = 100;
-        this.sprite.height = 100;
+        this.sprite.width = 40;
+        this.sprite.height = 40;
 
-        // set move Speed
+        // Movement prep
         this.speed = 1;
         this.sprite.rotation = Math.random()*3.14;
-
         this.playerMoveSpeed = gameView.moveSpeed;
+
+        // "Hit Box" for debug
+        // Sprite Initialization
+        this.hitImg = "../../img/GameView/blood.png";
+        this.hitSprite = PIXI.Sprite.from(this.hitImg);
+        this.hitSprite.anchor.set(0.5);
+        this.hitSprite.x = this.sprite.x
+        this.hitSprite.width = 25;
+        this.hitSprite.height = 25;
 
     }
 
@@ -81,8 +92,6 @@ class Monster {
             this.sprite.x = 0;
         }
     }
-
-
 
 
     hitTest(bulletX, bulletY) {

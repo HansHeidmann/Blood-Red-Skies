@@ -20,11 +20,13 @@ class Blood {
         this.sprite.y = y - 10 + Math.random()*20;
         this.sprite.displayGroup = gameView.bloodLayer;
 
-        // Width, Height, Rotation
+        // Width, Height, Rotation, Alpha
         this.sprite.width = Math.random() * 20;
         this.sprite.height = Math.random() * 10;
         this.sprite.rotation = Math.random() * (2 * Math.PI);
+        this.sprite.alpha = Math.random();
 
+        // to move blood to simulate player movement
         this.playerMoveSpeed = gameView.moveSpeed
 
     }
@@ -45,6 +47,10 @@ class Blood {
         
     }
 
+    fade() {
+        // slightly reduce visibility 
+        this.sprite.alpha -= .001;
+    }
     
    
     
