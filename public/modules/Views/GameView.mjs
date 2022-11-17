@@ -3,7 +3,7 @@ import { AudioPlayer } from '../AudioPlayer.mjs';
 import { Player } from '../ObjectClasses/Player.mjs';
 import { Monster } from '../ObjectClasses/Monster.mjs';
 import { Bullet } from '../ObjectClasses/Bullet.mjs';
-import { Map } from '../ObjectClasses/Map.mjs';
+import { Ground } from '../ObjectClasses/Ground.mjs';
 import { Blood } from '../ObjectClasses/Blood.mjs';
 
 //import { Container, Graphics, Sprite } from 'pixi.js';
@@ -28,7 +28,6 @@ export default class GameView {
 
     ground;
     player;
-    tempBullet;
     bullets;
     powerups;
     monsters;
@@ -85,7 +84,7 @@ export default class GameView {
         this.keyboardHandler = new KeyboardHandler(this);
         
         // add ground
-        this.ground = new Map(this);
+        this.ground = new Ground(this);
         this.groundLayer.addChild(this.ground.sprite);
 
         // add player
@@ -168,7 +167,7 @@ export default class GameView {
                         this.bullets.splice(index, 1); // remove the bullet at index (i)
                     }
                     // add some blood below the monster
-                    let bloodAmount = Math.floor(Math.random()*tempMonster.tintSprite.alpha*50); // NEEDS TO BE DIFFERENT FOR GUNS or based on monster damage
+                    let bloodAmount = Math.floor(Math.random()*20); // NEEDS TO BE DIFFERENT FOR GUNS or based on monster damage
                     let bloodX = tempMonster.sprite.x;
                     let bloodY = tempMonster.sprite.y;
                     for (let p=0; p<bloodAmount; p++) {

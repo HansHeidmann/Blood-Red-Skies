@@ -1,4 +1,4 @@
-class Map {
+class Ground {
     
     gameView;
 
@@ -55,4 +55,4 @@ class Map {
     
 }
 
-export { Map }
+export { Ground }

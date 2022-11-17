@@ -37,7 +37,7 @@ class Player {
         this.sprite.height = 100;
 
         // start rotating the player sprite towards the mouse
-        this.rotatePlayer(this.sprite, this);
+        this.rotate(this.sprite, this);
 
         // Gun and Ammo preparations
         this.ammo = 10;
@@ -51,7 +51,7 @@ class Player {
        
     }
 
-    rotatePlayer(sprite, parent) {
+    rotate(sprite, parent) {
         document.getElementById('game-view').onmousemove = function clickEvent(event) {
             var gameContainer = event.target.getBoundingClientRect();
             // get current mouse x,y
