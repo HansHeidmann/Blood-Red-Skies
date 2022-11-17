@@ -79,7 +79,7 @@ export default class GameView {
 
         // init audio player
         this.audioPlayer = new AudioPlayer();
-        //this.audioPlayer.play("theme");
+        //this.audioPlayer.theme.play();
 
         // init keyboard handler
         this.keyboardHandler = new KeyboardHandler(this);
@@ -168,7 +168,7 @@ export default class GameView {
                         this.bullets.splice(index, 1); // remove the bullet at index (i)
                     }
                     // add some blood below the monster
-                    let bloodAmount = Math.floor(Math.random()*20); // NEEDS TO BE DIFFERENT FOR GUNS
+                    let bloodAmount = Math.floor(Math.random()*tempMonster.tintSprite.alpha*50); // NEEDS TO BE DIFFERENT FOR GUNS or based on monster damage
                     let bloodX = tempMonster.sprite.x;
                     let bloodY = tempMonster.sprite.y;
                     for (let p=0; p<bloodAmount; p++) {

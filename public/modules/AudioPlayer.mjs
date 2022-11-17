@@ -11,7 +11,7 @@ class AudioPlayer {
             src: ['audio/theme_song.mp3'],
             autoplay: false,
             loop: false,
-            volume: 0.2,
+            volume: 0.15,
             onend: function() {
                 //
             }
@@ -20,7 +20,7 @@ class AudioPlayer {
             src: ['audio/gunshot.wav'],
             autoplay: false,
             loop: false,
-            volume: 0.13,
+            volume: 0.08,
             onend: function() {
                 //
             }
