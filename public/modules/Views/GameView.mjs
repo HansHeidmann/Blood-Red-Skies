@@ -1,4 +1,5 @@
 import { KeyboardHandler } from '../ObjectClasses/KeyboardHandler.mjs';
+import { AudioPlayer } from '../AudioPlayer.mjs';
 import { Player } from '../ObjectClasses/Player.mjs';
 import { Monster } from '../ObjectClasses/Monster.mjs';
 import { Bullet } from '../ObjectClasses/Bullet.mjs';
@@ -11,10 +12,7 @@ export default class GameView {
 
     viewController // to use MVC 
 
-    width; // game width
-    height; // game height
-
-    gameOver; // Boolean for whether game has ended or not
+    audioPlayer; 
 
     // keyboard and mouse state handling
     keyboardHandler; 
@@ -22,6 +20,11 @@ export default class GameView {
     mouseUp;
 
     game; // to store PIXI instance
+
+    width; // game width
+    height; // game height
+
+    gameOver; // Boolean for whether game has ended or not
 
     ground;
     player;
@@ -74,6 +77,10 @@ export default class GameView {
     // load the game - positions objects and draws their sprites in canvas
     load() {
 
+        // init audio player
+        this.audioPlayer = new AudioPlayer();
+        //this.audioPlayer.play("theme");
+
         // init keyboard handler
         this.keyboardHandler = new KeyboardHandler(this);
         
@@ -98,7 +105,7 @@ export default class GameView {
         this.blood = [];
 
         // listen for mouse clicks to shoot()
-        this.mosueDownListener(this);
+        this.mouseDownListener(this);
 
         this.bullets = [];
         // start the loop
@@ -123,10 +130,15 @@ export default class GameView {
         // Move ground under player
         this.ground.move(wKey, aKey, sKey, dKey);
 
+        // Play walking sound if walking
+        if(wKey || aKey || sKey || dKey) {
+            if(!this.audioPlayer.footsteps.playing()) {
+                this.audioPlayer.footsteps.play();
+                this.audioPlayer.footsteps.rate(1 + Math.random() * .3); // randomize pitch slightly
+            }
+        }
 
         // Bullets 
-
-
         for (let i=0; i<this.bullets.length; i++) {
             // Move all Bullets in bulletsArray
             let tempBullet = this.bullets[i];
@@ -193,24 +205,27 @@ export default class GameView {
     
 
     shoot() {
-         // grab the vars from player to orient/positiion a new bullet
-         let shootDirection = this.player.mouseAngle;
-         let gunLength = this.player.gunLength
-         // create a Bullet instance and push it to the bulletsArray
-         let tempBullet = new Bullet(this, shootDirection, gunLength);
-         this.bullets.push(tempBullet);
-         // add the bullet sprite to the game stage
-         this.bulletsLayer.addChild(tempBullet.sprite);
+        // play shoot sound
+        this.audioPlayer.gunshot.play();
+        //setTimeout(this.audioPlayer.play("reload"), 1000); // reload sound
+        // grab the vars from player to orient/positiion a new bullet
+        let shootDirection = this.player.mouseAngle;
+        let gunLength = this.player.gunLength
+        // create a Bullet instance and push it to the bulletsArray
+        let tempBullet = new Bullet(this, shootDirection, gunLength);
+        this.bullets.push(tempBullet);
+        // add the bullet sprite to the game stage
+        this.bulletsLayer.addChild(tempBullet.sprite);
     }
 
-    mosueDownListener(parent) {
+    mouseDownListener(parent) {
         document.getElementById('game-view').onmousedown = function shootEvent(event) {
            parent.shoot();
            parent.mouseDown = true;
         }
     }
 
-    mosueUpListener(parent) {
+    mouseUpListener(parent) {
         document.getElementById('game-view').onmousedown = function shootEvent(event) {
             parent.mouseUp = true;
         }
