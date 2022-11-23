@@ -83,7 +83,9 @@ canvas {
 }
 
 
-
+#debug {
+  color: white;
+}
 
 
 /* if adding images outside of canvas

@@ -48,7 +48,7 @@ class Player {
     
 
     shoot(sprite, parent) {
-       
+       //
     }
 
     rotate(sprite, parent) {

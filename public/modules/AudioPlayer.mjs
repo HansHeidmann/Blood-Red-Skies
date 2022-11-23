@@ -10,7 +10,7 @@ class AudioPlayer {
         this.theme = new Howl({
             src: ['audio/theme_song.mp3'],
             autoplay: false,
-            loop: false,
+            loop: true,
             volume: 0.15,
             onend: function() {
                 //

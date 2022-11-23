@@ -5,41 +5,75 @@ class Monster {
     width;
     height; 
 
-    img;
+
+    animationFrames;
+    animationFrameLength;
+    animationLength;
+    animationFrame;
+    animationFrameTimer;
+
+    sprites;
     sprite;
+
+    img;
     tintImg;
     tintSprite;
+
 
     speed;
     direction;
 
     playerMoveSpeed;
 
+
     constructor(gameView) {
 
         this.gameView = gameView;
         
         // Sprite Initialization
-        this.img = "../../img/GameView/vampire/vampire_standing.png";
-        this.sprite = PIXI.Sprite.from(this.img);
+        
+        //this.sprite = PIXI.Sprite.from(this.img);
+        //this.sprite.anchor.set(0.5);
+        this.animationFrames = 8;
+        this.animationFrameLength = 5;
+        this.animationLength = this.animationFrames * this.animationFrameLength;
+        this.animationFrame = 0;
+        this.animationFrameTimer = 0;
+
+        this.sprites = [
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_standing.png"),
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_1.png"),
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_2.png"),
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_1.png"),
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_standing.png"),
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_3.png"),
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_4.png"),
+            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_3.png")
+        ];
+
+        this.sprite = this.sprites[0];
         this.sprite.anchor.set(0.5);
+        gameView.monstersLayer.addChild(this.sprite);
+
+        
         
         // X, Y position and Z layer
-        this.sprite.x = Math.random()*gameView.game.screen.width;
-        this.sprite.y = Math.random()*gameView.game.screen.height;
+        this.sprite.x = Math.random() * gameView.game.screen.width;
+        this.sprite.y = Math.random() * gameView.game.screen.height;
         this.sprite.displayGroup = gameView.monstersLayer;
         
         // Width and Height
-        let size = 40;
+        let size = 60;
         this.sprite.width = size;
         this.sprite.height = size;
 
         // Movement prep
         this.speed = 1;
-        this.sprite.rotation = Math.random()*3.14;
+        this.sprite.rotation = Math.random() * 2*3.14;
         this.playerMoveSpeed = gameView.moveSpeed;
 
         // Duplicate Sprite for Red Tinting when Hit
+        this.img = "../../img/GameView/vampire/vampire_standing.png";
         this.tintImg = "../../img/GameView/vampire/vampire_standing.png";
         this.tintSprite = PIXI.Sprite.from(this.img);
         this.tintSprite.anchor.set(0.5);
@@ -53,19 +87,20 @@ class Monster {
         this.tintSprite.tint = 16711680;
 
         // add sprite to gameView
-        gameView.monstersLayer.addChild(this.sprite);
+        
         gameView.monstersTintLayer.addChild(this.tintSprite);
     }
 
 
     move(w,a,s,d) {
+
         this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.speed;
         this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.speed;
         
         // randomize movement slightly
-        let chance = Math.floor(Math.random()*5);
+        let chance = Math.floor(Math.random()*3);
         if (chance == 0) {
-            this.sprite.rotation += (-Math.PI/16 + Math.random()*Math.PI/8);
+            this.sprite.rotation += (-Math.PI/32 + Math.random()*Math.PI/16);
         }
 
         // simulate player movement
@@ -103,6 +138,40 @@ class Monster {
         }
     }
 
+    animate() {
+        console.log("animating");
+        // if (this.animationFrameTimer % this.animationFrameLength == 0) {
+        //     this.animationFrame = 
+        // }
+        this.animationFrame = Math.floor(this.animationFrames * this.animationFrameTimer/this.animationLength); //get frame #
+        console.log(this.animationFrameTimer);
+        console.log(this.animationFrame);
+        
+        let x = this.sprite.x;
+        let y = this.sprite.y;
+        let w = this.sprite.width;
+        let h = this.sprite.height;
+        let r = this.sprite.rotation;
+        let a = this.sprite.anchor;
+
+        this.gameView.monstersLayer.removeChild(this.sprite)
+        
+        this.sprite = this.sprites[this.animationFrame];
+        this.sprite.x = x;
+        this.sprite.y = y;
+        this.sprite.width = w;
+        this.sprite.height = h;
+        this.sprite.rotation = r;
+        this.sprite.anchor.set(0.5);
+        
+        this.gameView.monstersLayer.addChild(this.sprite)
+        
+
+        this.animationFrameTimer++;
+        if (this.animationFrameTimer == this.animationLength) {
+            this.animationFrameTimer = 0;
+        }
+    }
 
     hitTest(bulletX, bulletY) {
         

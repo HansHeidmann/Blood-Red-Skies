@@ -13,6 +13,7 @@ export default class GameView {
     viewController // to use MVC 
 
     audioPlayer; 
+    soundOff;
 
     // keyboard and mouse state handling
     keyboardHandler; 
@@ -34,7 +35,6 @@ export default class GameView {
 
     moveSpeed;
 
-    groundLayer;
 
     constructor(viewController) {
 
@@ -78,7 +78,12 @@ export default class GameView {
 
         // init audio player
         this.audioPlayer = new AudioPlayer();
-        //this.audioPlayer.theme.play();
+        this.soundOff = false;
+        this.musicOff = true;
+        // start theme song
+        if(!this.musicOff) {
+            this.audioPlayer.theme.play();
+        }
 
         // init keyboard handler
         this.keyboardHandler = new KeyboardHandler(this);
@@ -131,9 +136,11 @@ export default class GameView {
 
         // Play walking sound if walking
         if(wKey || aKey || sKey || dKey) {
-            if(!this.audioPlayer.footsteps.playing()) {
-                this.audioPlayer.footsteps.play();
-                this.audioPlayer.footsteps.rate(1 + Math.random() * .3); // randomize pitch slightly
+            if(!this.soundOff) {
+                if(!this.audioPlayer.footsteps.playing()) {
+                    this.audioPlayer.footsteps.play();
+                    this.audioPlayer.footsteps.rate(1 + Math.random() * .3); // randomize pitch slightly
+                }
             }
         }
 
@@ -147,9 +154,34 @@ export default class GameView {
 
         // Monsters 
         for (let m=0; m<this.monsters.length; m++) {
-            // Move all Bullets in bulletsArray
+            // Move all Monsters in monsters[] array
             let tempMonster = this.monsters[m];
             tempMonster.move(wKey, aKey, sKey, dKey);
+            tempMonster.animate(this);
+            
+            // Add some blood below hurt monsters
+            // add some blood below the monster
+                // let chance = 10-Math.floor(Math.random()*tempMonster.tintSprite.alpha*10);
+                // console.log(chance);
+                // if (chance == 0) {
+
+                // }
+            if (tempMonster.tintSprite.alpha > 0.2) {
+                let chance = Math.floor(Math.random()*(50 - (20 * tempMonster.tintSprite.alpha)));
+                if (chance == 0) {
+                    let bloodX = tempMonster.sprite.x;
+                    let bloodY = tempMonster.sprite.y;
+                    let tempBlood = new Blood(this, bloodX, bloodY);
+                    this.blood.push(tempBlood);
+                    this.bloodLayer.addChild(tempBlood.sprite);
+                }
+            }
+            
+            // let bloodAmount = Math.floor(Math.random()*2*tempMonster.tintSprite.alpha);
+            
+            // for (let p=0; p<bloodAmount; p++) {
+                
+            
             // Check to see if Bullet hit a Monster
             for (let b=0; b<this.bullets.length; b++) { // loop through all bullets
                 let tempBulletX = this.bullets[b].sprite.x; // current bullet X position
@@ -182,6 +214,8 @@ export default class GameView {
             }
         }
 
+        var bloodDiv = document.getElementById("bloodArray");
+
         // Blood
         for (let i=0; i<this.blood.length; i++) {
             // Move all Bullets in bulletsArray
@@ -190,22 +224,25 @@ export default class GameView {
             // fade blood as time passes
             tempBlood.fade();
             // Remove the oldest blood whenever maxBlood blood sprites exist 
-            if(this.blood.length == 500) {
-                this.bloodLayer.removeChild(this.blood[0].sprite);
+            if(this.blood.length >= 1000) {
                 this.blood[0].sprite.destroy();
+                this.bloodLayer.removeChild(this.blood[0].sprite);
                 this.blood[0] = null;
                 this.blood.shift();
             }
+
+            // debug
+            bloodDiv.innerHTML = "blood[].length = " + this.blood.length;
         }
         
     }
     
 
-    
-
     shoot() {
         // play shoot sound
-        this.audioPlayer.gunshot.play();
+        if(!this.soundOff) {
+            this.audioPlayer.gunshot.play();
+        }
         //setTimeout(this.audioPlayer.play("reload"), 1000); // reload sound
         // grab the vars from player to orient/positiion a new bullet
         let shootDirection = this.player.mouseAngle;
