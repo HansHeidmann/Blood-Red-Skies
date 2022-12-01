@@ -139,13 +139,10 @@ class Monster {
     }
 
     animate() {
-        console.log("animating");
-        // if (this.animationFrameTimer % this.animationFrameLength == 0) {
-        //     this.animationFrame = 
-        // }
         this.animationFrame = Math.floor(this.animationFrames * this.animationFrameTimer/this.animationLength); //get frame #
-        console.log(this.animationFrameTimer);
-        console.log(this.animationFrame);
+        // debug - animation frame tracking
+        //console.log(this.animationFrameTimer);
+        //console.log(this.animationFrame);
         
         let x = this.sprite.x;
         let y = this.sprite.y;

@@ -1,3 +1,8 @@
+import MenuView from '../modules/Views/MenuView.mjs';
+import GameView from '../modules/Views/GameView.mjs';
+import GameOverView from '../modules/Views/GameOverView.mjs';
+import LeaderboardView from '../modules/Views/LeaderboardView.mjs';
+
 let instance = null; // Singleton Pattern
 
 export default class ViewController {
@@ -11,12 +16,20 @@ export default class ViewController {
             instance = this; // Singleton Pattern
         }
 
-        this.#elems.title = document.getElementById('menu-view');
+        this.#elems.menu = document.getElementById('menu-view');
         this.#elems.leaderboard = document.getElementById('leaderboard-view');
         this.#elems.game = document.getElementById('game-view');
-        this.#elems.dead = document.getElementById('gameover-view');
+        this.#elems.gameOver = document.getElementById('gameover-view');
+
+
+        this.menu = new MenuView(this);
+        this.game = new GameView(this);
+        this.gameOver = new GameOverView(this);
+        this.leaderboard = new LeaderboardView(this);
 
         return instance; // Singleton Pattern
+
+        
     }
 
     switchView(name) {

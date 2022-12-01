@@ -6,18 +6,15 @@ export default class MenuView {
     constructor(viewController) {
         this.viewController = viewController;
         this.playButton = document.getElementById('play-button');
-        this.playButton.onclick = this.gotoGame.bind(this);
+        this.playButton.onclick = this.gotoGameView.bind(this);
         // debug
         //console.log('this.viewController:');
         //console.log(this.viewController);
     }
 
-    gotoGame() {
+    gotoGameView() {
         this.viewController.switchView('game');
-        // debug
-        //console.log(this);
-        //console.log("play press");
-        //console.log(this.viewController);
+        this.viewController.game.load();
     }
 
 }
