@@ -9,6 +9,7 @@ export default class ViewController {
 
     active = 'menu';
     #elems = {};
+    #views = {};
 
     constructor() {
 
@@ -27,6 +28,11 @@ export default class ViewController {
         this.gameOver = new GameOverView(this);
         this.leaderboard = new LeaderboardView(this);
 
+        this.#views.menu = this.menu;
+        this.#views.leaderboard = this.leaderboard;
+        this.#views.game = this.game;
+        this.#views.gameOver = this.gameOver;
+
         return instance; // Singleton Pattern
 
         
@@ -38,6 +44,11 @@ export default class ViewController {
             this.#elems[key].style.display = 'none';
         }
         this.#elems[name].style.display = null;
+
+        // for(let key in this.#views) {
+        //     this.#views[key].unload();
+        // }
+        this.#views[name].load();
     }
     
 

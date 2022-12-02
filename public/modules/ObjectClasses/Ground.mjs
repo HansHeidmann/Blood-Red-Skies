@@ -17,7 +17,10 @@ class Ground {
 
         // Sprite Initialization
         this.img = "../../img/GameView/ground.png";
+
+        
         this.sprite = PIXI.Sprite.from(this.img);
+
         this.sprite.anchor.set(0.5);
         
         // X and Y position

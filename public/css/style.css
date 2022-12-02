@@ -6,7 +6,7 @@ html,body{
     /* text-align: center; */
 }
 body {
-    /*font-family: 'VT323', monospace;*/
+    font-family: 'VT323', monospace;
     color: white;
     background-color: black;
     
@@ -25,12 +25,12 @@ body {
 }
 
 canvas {
-  /*
+  
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated; 
   image-rendering: crisp-edges; 
-  */
+  
   image-rendering: optimizeQuality;
 }
 
@@ -48,15 +48,10 @@ canvas {
   text-align: center;
 }
 
-#game-view {
-  width: 100%;
-  height: 100%;
-  text-align: center;
-}
-
 #play-button {
   position: relative;
   top: 45%;
+  font-family: 'VT323', monospace;
   background-color: #4CAF50;
   border-radius: 15px;
   border: none;
@@ -68,9 +63,10 @@ canvas {
   font-size: 64px;
 }
 
-#leaderboard-button {
+#leaderboards-button {
   position: relative;
   top: 52%;
+  font-family: 'VT323', monospace;
   background-color: #20bae0; 
   border-radius: 15px;
   border: none;
@@ -82,15 +78,63 @@ canvas {
   font-size: 64px;
 }
 
+#game-view {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+#leaderboard-view {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background-color: rgb(49, 2, 2);
+}
+
+#leaderboard-title-text {
+  position: relative;
+  top:2%;
+  font-size: 64px;
+}
+
+#leaderboard-table {
+  background-color: #707070;
+  width: 80%;
+  height: 75%;
+  top: 10%;
+  margin: auto; /* this centers the table */
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#back-button {
+  position: absolute;
+  top: 2%;
+  left: 3%;
+  font-family: 'VT323', monospace;
+  background-color: #384946;
+  border-radius: 15px;
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 35px;
+}
 
 #gameover-view {
   width: 100%;
   height: 100%;
-  background-color: #2e2e2e;
+  background-color: #707070;
   background-image: url("../img/GameView/blood.png");
   background-size: contain;
   text-align: center;
 }
+
+
 
 #game-over-text {
   position: relative;
@@ -100,9 +144,26 @@ canvas {
   padding: 15px 32px;
 }
 
+#score-text {
+  position: relative;
+  text-decoration: none;
+  top:10%;
+  font-size: 40px;
+  padding: 15px 32px;
+}
+
+#highscore-text {
+  position: relative;
+  text-decoration: none;
+  top:7%;
+  font-size: 40px;
+  padding: 15px 32px;
+}
+
 #retry-button {
   position: relative;
-  top: 20%;
+  top: 8%;
+  font-family: 'VT323', monospace;
   background-color: #4CAF50;
   border-radius: 15px;
   border: none;
@@ -116,7 +177,8 @@ canvas {
 
 #post-button {
   position: relative;
-  top: 30%;
+  top: 10%;
+  font-family: 'VT323', monospace;
   background-color: #20bae0; 
   border-radius: 15px;
   border: none;

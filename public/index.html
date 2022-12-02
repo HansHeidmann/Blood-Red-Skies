@@ -17,13 +17,17 @@
         <div id="game-container" style="width: 600px; height: 600px;">
             <!-- MENU VIEW -->
             <div id="menu-view">
-                <button id="play-button">Play</button>
+                <button id="play-button">PLAY</button>
                 </br></br>
-                <button id="leaderboard-button">High Scores</button>
+                <button id="leaderboards-button">LEADERBOARD</button>
             </div>
 
             <!-- LEADERBOARD VIEW -->
-            <div id="leaderboard-view" style="display:none;">C</div>
+            <div id="leaderboard-view" style="display:none;">
+                <div id="leaderboard-title-text">LEADERBOARD</div>
+                <button id="back-button">BACK</button>
+                <div id="leaderboard-table"></div>
+            </div>
 
             <!-- GAME VIEW -->
             <div id="game-view" style="display:none;"></div>
@@ -31,9 +35,11 @@
             <!-- GAMEOVER VIEW -->
             <div id="gameover-view" style="display:none;">
                 <div id="game-over-text">YOU DIED!</div>
-                <button id="retry-button">Play Again</button>
+                <div id="score-text">SCORE:</div>
+                <div id="highscore-text">HIGHSCORE:</div>
+                <button id="retry-button">TRY AGAIN</button>
                 </br></br>
-                <button id="post-button">Post Score</button>
+                <button id="post-button">POST SCORE</button>
             </div>
         </div>
 

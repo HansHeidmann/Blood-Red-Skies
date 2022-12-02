@@ -33,7 +33,7 @@ class Bullet {
     
 
     shoot() {
-        console.log("shot!");
+        //console.log("shot!");
     }
 
     move() {

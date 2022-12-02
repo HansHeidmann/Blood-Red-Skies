@@ -38,6 +38,11 @@ export default class GameView {
 
     health;
     time;
+    ammo;
+    score;
+    highscore;
+    guns;
+    currentGun;
     moveSpeed;
 
 
@@ -55,32 +60,39 @@ export default class GameView {
         });
         document.getElementById("game-view").appendChild(this.game.view);
 
-    }
-
-    // switch to GameOver View
-    gotoGameOverView() {
-        this.viewController.switchView('gameOver');
-        delete(this);
-        console.log(this);
-    }
-
-    // load the game - positions objects and draws their sprites in canvas
-    load() {
-
+        // default values for global vars
         this.gameOver = false;
         this.health = 100;
         this.time = 0;
+        this.score = 0;
+        this.highscore = 0;
         this.moveSpeed = 3;
+
+        // empty arrays for monsters, blood, bullets, powerups
+        this.monsters = [];
+        this.blood = [];
+        this.bullets = [];
+
+        // empty dict for ammo
+        this.ammo = {};
+        this.ammo.pistol = 999;
+        this.ammo.rifle = 100;
+        this.ammo.shotgun = 30;
+
+        // guns
+        this.guns = ["pistol"];
+        this.currentGun = this.guns[0];
 
         // init audio player
         this.audioPlayer = new AudioPlayer();
+
+        // audio settings
         this.soundOff = false;
         this.musicOff = true;
-        // start theme song
         if(!this.musicOff) {
             this.audioPlayer.theme.play();
         }
-
+        
         // listen for mouse clicks to shoot()
         this.mouseDownListener(this);
 
@@ -111,45 +123,123 @@ export default class GameView {
         this.player = new Player(this);
         this.playerLayer.addChild(this.player.sprite);
 
+        // add gui
+        this.gui = new GUI(this);
+        this.guiLayer.addChild(this.gui.healthSprite);
+        this.guiLayer.addChild(this.gui.timeSprite);
+        this.guiLayer.addChild(this.gui.ammoSprite);
+        this.guiLayer.addChild(this.gui.scoreSprite);
+
+        
+
+        // main game loop ticker
+        this.game.ticker.add((delta) => this.loop());
+
+    }
+
+    // switch to GameOver View
+    gotoGameOverView() {
+        this.viewController.switchView('gameOver');
+    }
+
+    // call reset() to (re)load the game 
+    load() {
+        console.log("loading game view...")
+        this.reset();
+       
+    }
+
+    stopGame() {
+        // clean up monsters, blood, bullets, etc
+        this.clean();
+        this.gotoGameOverView();
+    }
+
+    clean() {
+        console.log("GAME OVER.. cleaning up GameView");
+
+        // clean monsters
+        while (this.monsters.length > 0) {
+            this.monsters[0].sprite.destroy();
+            this.monsters[0].tintSprite.destroy();
+            this.monstersLayer.removeChild(this.monsters[0].sprite);
+            this.monstersLayer.removeChild(this.monsters[0].tintSprite);
+            this.monsters[0] = null;
+            this.monsters.shift();
+        }
+
+        // clean bullets
+        while (this.bullets.length > 0) {
+            this.bullets[0].sprite.destroy();
+            this.bulletsLayer.removeChild(this.bullets[0].sprite);
+            this.bullets[0] = null;
+            this.bullets.shift();
+        }
+
+        // clean blood
+        while (this.blood.length > 0) {
+            this.blood[0].sprite.destroy();
+            this.bloodLayer.removeChild(this.blood[0].sprite);
+            this.blood[0] = null;
+            this.blood.shift();
+        }
+    }
+
+    reset() {
+
+        this.gameOver = false;
+        this.health = 100;
+        this.time = 0;
+        this.score = 0;
+
+        // Blood and bullets arrays (empty)
+        this.blood = [];
+        this.bullets = [];
+
+        // ammo
+        this.ammo.pistol = 999;
+        this.ammo.rifle = 100;
+        this.ammo.shotgun = 30;
+
+        // guns
+        this.guns = ["pistol"];
+        this.currentGun = this.guns[0];
+
         // add monsters 
         this.monsters = [];
         for (let m=0; m<10; m++) {
             let tempMonster = new Monster(this);
             this.monsters.push(tempMonster);
         }
+
+        // update gui text
+        this.gui.updateHealthText(this.health);
+        this.gui.updateTimeText(this.time);
+        this.gui.updateAmmoText(this.ammo[this.currentGun]);
+        this.gui.updateScoreText(this.score);
+
         
-
-        // Blood and bullets arrays (empty
-        this.blood = [];
-        this.bullets = [];
-
-        // add player
-        this.gui = new GUI(this);
-        this.guiLayer.addChild(this.gui.healthSprite);
-        this.guiLayer.addChild(this.gui.timeSprite);
-
-        // start main GAME LOOP
-        this.game.ticker.add((delta) => this.loop());
-       
     }
 
     
     loop() {
 
-        if (!this.gameOver) {
+        if (!this.gameOver && this.viewController.active == 'game') {
 
             // check for game over
             if (this.health <= 0) {
                 this.gameOver = true;
-                this.gotoGameOverView();
+                this.stopGame();
             }
 
             // debug
-            this.health -= .5;
+            this.health -= .1;
             // increase survival time and update gui text with values
             this.time += 0.1;
-            this.gui.updateText(this.health, this.time);
 
+            // update gui text
+            this.gui.updateHealthText(this.health);
+            this.gui.updateTimeText(this.time);
 
             // Get current state of movement keys
             let wKey = this.keyboardHandler.wKeyDown;
@@ -214,6 +304,8 @@ export default class GameView {
                     let tempBulletY = this.bullets[b].sprite.y; // current bullet Y position
                     if (tempMonster.hitTest(tempBulletX, tempBulletY)) { // is x,y of bullet inside monster's hit radius?
                         console.log("hit!");
+                        // increase score slightly
+                        this.increaseScore(5);
                         // tint hit monster slightly more red
                         tempMonster.tintSprite.alpha += 0.05;
                         // remove the bullet that hit the monster (object cleanup)
@@ -263,22 +355,40 @@ export default class GameView {
         }
         
     }
+
+    increaseScore(amount) {
+        this.score += amount;
+        if(this.score > this.highscore) {
+            this.highscore = this.score;
+        }
+        this.gui.updateScoreText(this.score);
+    }
     
 
     shoot() {
-        // play shoot sound
-        if(!this.soundOff) {
-            this.audioPlayer.gunshot.play();
+        if (!this.gameOver) {
+            // ifthe player has ammo for their current gun:
+            if (this.ammo[this.currentGun] > 0) {
+                // reduce ammo by 1
+                this.ammo[this.currentGun]--;
+                this.gui.updateAmmoText(this.ammo[this.currentGun]);
+                // play shoot sound
+                if(!this.soundOff) {
+                    this.audioPlayer.gunshot.play();
+                }
+                //setTimeout(this.audioPlayer.play("reload"), 1000); // reload sound
+                // grab the vars from player to orient/positiion a new bullet
+                let shootDirection = this.player.mouseAngle;
+                let gunLength = this.player.gunLength
+                // create a Bullet instance and push it to the bulletsArray
+                let tempBullet = new Bullet(this, shootDirection, gunLength);
+                this.bullets.push(tempBullet);
+                // add the bullet sprite to the game stage
+                this.bulletsLayer.addChild(tempBullet.sprite);
+            }
+            
         }
-        //setTimeout(this.audioPlayer.play("reload"), 1000); // reload sound
-        // grab the vars from player to orient/positiion a new bullet
-        let shootDirection = this.player.mouseAngle;
-        let gunLength = this.player.gunLength
-        // create a Bullet instance and push it to the bulletsArray
-        let tempBullet = new Bullet(this, shootDirection, gunLength);
-        this.bullets.push(tempBullet);
-        // add the bullet sprite to the game stage
-        this.bulletsLayer.addChild(tempBullet.sprite);
+        
     }
 
     mouseDownListener(parent) {
