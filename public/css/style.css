@@ -138,6 +138,23 @@ canvas {
   justify-content: center;
 }
 
+.tableRow {
+  position: "relative";
+  height: "7.5%";
+  margin: "1% 0% 0% 0";
+  width: "95%";
+  background-color: "white";
+  color: "black";
+  font-size: "30px";
+}
+
+.scoreCol {
+  text-align: left;
+  /* scoreCol.style.display = "inline-block";
+        scoreCol.style.paddingRight = "10%";
+        scoreCol.style.alignItems = "right"; */
+}
+
 #back-button {
   position: absolute;
   top: 2%;

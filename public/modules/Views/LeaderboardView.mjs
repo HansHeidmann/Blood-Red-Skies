@@ -67,12 +67,11 @@ export default class LeaderboardView {
     createCols(row) {
         let scoreCol = document.createElement("div");
         scoreCol.style.display = "inline-block";
-        scoreCol.style.paddingRight = "10%";
-        scoreCol.style.alignItems = "right";
+        scoreCol.style.paddingLeft = "13%";
+        scoreCol.style.float = "left";
         let nameCol = document.createElement("div");
         nameCol.style.display = "inline-block";
         nameCol.style.paddingLeft = "10%";
-        scoreCol.style.alignItems = "left";
         row.appendChild(scoreCol);
         row.appendChild(nameCol);
         this.scoreCols.push(scoreCol);

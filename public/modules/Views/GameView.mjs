@@ -233,7 +233,7 @@ export default class GameView {
             }
 
             // debug
-            this.health -= .8;
+            //this.health -= .8;
             // increase survival time and update gui text with values
             this.time += 0.1;
 

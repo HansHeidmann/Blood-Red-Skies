@@ -19,16 +19,26 @@ class Monster {
     tintImg;
     tintSprite;
 
+    dead;
 
     speed;
-    direction;
+    attackingSpeed;
+    targettingPlayer;
+    targettingDistance;
+    maxWanderingDistance;
 
+    player;
     playerMoveSpeed;
 
 
     constructor(gameView) {
 
+        // ref to view
         this.gameView = gameView;
+
+        // player ref
+        this.player = gameView.player.sprite;
+        this.playerMoveSpeed = gameView.moveSpeed;
         
         // Sprite Initialization
         
@@ -50,27 +60,28 @@ class Monster {
             PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_4.png"),
             PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_3.png")
         ];
-
         this.sprite = this.sprites[0];
         this.sprite.anchor.set(0.5);
         gameView.monstersLayer.addChild(this.sprite);
-
-        
-        
-        // X, Y position and Z layer
-        this.sprite.x = Math.random() * gameView.game.screen.width;
-        this.sprite.y = Math.random() * gameView.game.screen.height;
         this.sprite.displayGroup = gameView.monstersLayer;
+        
+        // X, Y position 
+        this.setPosition();
+        
         
         // Width and Height
         let size = 60;
         this.sprite.width = size;
         this.sprite.height = size;
 
-        // Movement prep
-        this.speed = 1;
+        // Movement prep, Start out alive and wandering
+        this.dead = false;
+        this.speed = .8;
+        this.attackingSpeed = 1.5;
         this.sprite.rotation = Math.random() * 2*3.14;
-        this.playerMoveSpeed = gameView.moveSpeed;
+        this.targettingPlayer = false;
+        this.targettingDistance = 260;
+        this.maxWanderingDistance = 500;
 
         // Duplicate Sprite for Red Tinting when Hit
         this.img = "../../img/GameView/vampire/vampire_standing.png";
@@ -85,25 +96,54 @@ class Monster {
         this.tintSprite.rotation = this.sprite.rotation;
         this.tintSprite.alpha = 0;
         this.tintSprite.tint = 16711680;
-
-        // add sprite to gameView
-        
-        gameView.monstersTintLayer.addChild(this.tintSprite);
+        gameView.monstersTintLayer.addChild(this.tintSprite); // add tint-sprite to gameView
     }
 
+    setPosition() {
+        // this.sprite.x = Math.random() * this.gameView.game.screen.width;
+        // this.sprite.y = Math.random() * this.gameView.game.screen.height;
+
+        let minDistance = 400;
+        let randomDistance = Math.floor(Math.random() * 1) + minDistance;
+        let radians = Math.random() * (2* Math.PI);
+
+        this.sprite.x = this.player.x + (Math.cos(radians) * randomDistance);
+        this.sprite.y = this.player.y + (Math.sin(radians) * randomDistance);
+    }
 
     move(w,a,s,d) {
 
-        this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.speed;
-        this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.speed;
-        
-        // randomize movement slightly
-        let chance = Math.floor(Math.random()*3);
-        if (chance == 0) {
-            this.sprite.rotation += (-Math.PI/32 + Math.random()*Math.PI/16);
+        if (this.targettingPlayer) {
+            // rotate towards player
+            this.rotateTowards(this.player);
+            // move forward
+            this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+            this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+
+        } else {
+
+            if (this.distanceTo(this.player) < this.maxWanderingDistance) {
+            
+                // see if player is within range to attack
+                if (this.distanceTo(this.player) < this.targettingDistance) {
+                    this.targettingPlayer = true;
+                }
+
+                // move forward
+                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.speed;
+                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.speed;
+                
+                // maybe turn a bit, randomly
+                let chance = Math.floor(Math.random()*3);
+                if (chance == 0) {
+                    this.sprite.rotation += (-Math.PI/32 + Math.random()*Math.PI/16);
+                }
+            
+            }
+
         }
 
-        // simulate player movement
+        // WASD - move monsters with map and everything 
         if((w && a) || (a && s) || (s && d) || (d && w)) {
             this.sprite.y += w * this.playerMoveSpeed * Math.sqrt(2)/2;
             this.sprite.y -= s * this.playerMoveSpeed * Math.sqrt(2)/2;
@@ -116,26 +156,11 @@ class Monster {
             this.sprite.x -= d * this.playerMoveSpeed;
         }
 
-        // copy location and rotation for tintSprite
+        // copy and update tintSprite's location, rotation 
         this.tintSprite.rotation = this.sprite.rotation;
         this.tintSprite.x = this.sprite.x;
         this.tintSprite.y = this.sprite.y;
-
-
-        // for testing
-
-        if(this.sprite.y < 0) {
-            this.sprite.y = 600;
-        }
-        if(this.sprite.y > 600) {
-            this.sprite.y = 0;
-        }
-        if(this.sprite.x < 0) {
-            this.sprite.x = 600;
-        }
-        if(this.sprite.x > 600) {
-            this.sprite.x = 0;
-        }
+        
     }
 
     animate() {
@@ -183,6 +208,22 @@ class Monster {
         }
         return false;
 
+    }
+
+    distanceTo(otherObject) {
+        let monster = this.sprite;
+        let distance = Math.sqrt(Math.pow((otherObject.x - monster.x), 2) + Math.pow((otherObject.y - monster.y), 2));
+        return distance;
+    }
+
+    rotateTowards(otherObject) {
+        let monster = this.sprite;
+        var deltaX = otherObject.x - monster.x;
+        var deltaY = otherObject.y - monster.y;
+        // calculate angle in rads
+        var radians = Math.atan2(deltaX, deltaY)
+        // rotate
+        monster.rotation = -radians + Math.PI;
     }
     
    
