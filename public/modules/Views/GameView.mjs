@@ -45,6 +45,8 @@ export default class GameView {
     currentGun;
     moveSpeed;
 
+    bulletsToRemove;
+
 
     constructor(viewController) {
 
@@ -72,6 +74,7 @@ export default class GameView {
         this.monsters = [];
         this.blood = [];
         this.bullets = [];
+        this.bulletsToRemove = [];
 
         // empty dict for ammo
         this.ammo = {};
@@ -206,8 +209,9 @@ export default class GameView {
         this.currentGun = this.guns[0];
 
         // add monsters 
+        let totalMonsters = 10;
         this.monsters = [];
-        for (let m=0; m<10; m++) {
+        for (let m=0; m<totalMonsters; m++) {
             let tempMonster = new Monster(this);
             this.monsters.push(tempMonster);
         }
@@ -265,7 +269,6 @@ export default class GameView {
                 // Move all Bullets in bulletsArray
                 let tempBullet = this.bullets[i];
                 tempBullet.move(wKey, aKey, sKey, dKey);
-                // Check to see if Bullet hit a Monster
             }
 
             // Monsters 
@@ -276,12 +279,6 @@ export default class GameView {
                 tempMonster.animate(this);
                 
                 // Add some blood below hurt monsters
-                // add some blood below the monster
-                    // let chance = 10-Math.floor(Math.random()*tempMonster.tintSprite.alpha*10);
-                    // console.log(chance);
-                    // if (chance == 0) {
-
-                    // }
                 if (tempMonster.tintSprite.alpha > 0.2) {
                     let chance = Math.floor(Math.random()*(50 - (20 * tempMonster.tintSprite.alpha)));
                     if (chance == 0) {
@@ -293,10 +290,7 @@ export default class GameView {
                     }
                 }
                 
-                // let bloodAmount = Math.floor(Math.random()*2*tempMonster.tintSprite.alpha);
-                
-                // for (let p=0; p<bloodAmount; p++) {
-                    
+        
                 
                 // Check to see if Bullet hit a Monster
                 for (let b=0; b<this.bullets.length; b++) { // loop through all bullets
@@ -306,35 +300,43 @@ export default class GameView {
                         console.log("hit!");
                         // increase score slightly
                         this.increaseScore(5);
-                        // tint hit monster slightly more red
-                        tempMonster.tintSprite.alpha += 0.05;
-                        // remove the bullet that hit the monster (object cleanup)
-                        this.bulletsLayer.removeChild(this.bullets[b].sprite);
-                        this.bullets[b].sprite.destroy();
-                        this.bullets[b] = null;
-                        let index = this.bullets.indexOf(this.bullets[b]); //
-                        if (index > -1) { 
-                            this.bullets.splice(index, 1); // remove the bullet at index (i)
-                        }
+
                         // add some blood below the monster
                         let bloodAmount = Math.floor(Math.random()*20); // NEEDS TO BE DIFFERENT FOR GUNS or based on monster damage
                         let bloodX = tempMonster.sprite.x;
                         let bloodY = tempMonster.sprite.y;
-                        for (let p=0; p<bloodAmount; p++) {
-                            let bloodSprayDistanceX = -10 + Math.floor(Math.random()*20);
-                            let bloodSprayDistanceY = -10 + Math.floor(Math.random()*20);
-                            let tempBlood = new Blood(this, bloodX+bloodSprayDistanceX, bloodY+bloodSprayDistanceY);
-                            this.blood.push(tempBlood);
-                            this.bloodLayer.addChild(tempBlood.sprite);
+                        this.bloodSplatter(bloodAmount, bloodX, bloodY, 20, 20);
+                       
+                        
+                        // remove the bullet change to queue with object removal function
+                        this.bulletsLayer.removeChild(this.bullets[b].sprite);
+                        this.bullets[b].sprite.destroy();
+                        this.bullets[b] = null;
+                        let index = this.bullets.indexOf(this.bullets[b]); 
+                        if (index > -1) { 
+                            this.bullets.splice(index, 1); // remove the object at index (i)
+                        }
+                        // queue the bullet for removal 
+                        //bulletsToRemove.push(this.bullets[b]);
+                        
+                        
+                        // tint hit monster slightly more red
+                        tempMonster.tintSprite.alpha += 0.05;
+
+                        tempMonster.takeDamage();
+
+                        if(tempMonster.health <= 0) {
+                            console.log("made it here");
                         }
                         
                     }
                 }
+
+               
             }
 
-            var bloodDiv = document.getElementById("bloodArray");
 
-            // Blood
+            // Blood - fading and object cleanup
             for (let i=0; i<this.blood.length; i++) {
                 // Move all Bullets in bulletsArray
                 let tempBlood = this.blood[i];
@@ -347,12 +349,13 @@ export default class GameView {
                     this.bloodLayer.removeChild(this.blood[0].sprite);
                     this.blood[0] = null;
                     this.blood.shift();
-                }
-
-                // debug
-                bloodDiv.innerHTML = "blood[].length = " + this.blood.length;
+                }   
             }
         }
+
+        // debug
+        var bloodDiv = document.getElementById("bloodArray");
+        bloodDiv.innerHTML = "monsters[].length = " + this.monsters.length + "    " + this.monstersLayer;
         
     }
 
@@ -389,6 +392,26 @@ export default class GameView {
             
         }
         
+    }
+
+    bloodSplatter(amount, x, y, sprayModX, sprayModY) {
+        for (let b=0; b<amount; b++) {
+            let sprayX = -10 + Math.floor(Math.random()*sprayModX);
+            let sprayY = -10 + Math.floor(Math.random()*sprayModY);
+            let blood = new Blood(this, x + sprayX, y + sprayY);
+            this.blood.push(blood);
+            this.bloodLayer.addChild(blood.sprite);
+        }
+    }
+
+    removeObject(target, targetArray, targetLayer) {
+        targetLayer.removeChild(target.sprite);
+        target.sprite.destroy();
+        target = null;
+        let index = targetArray.indexOf(target); 
+        if (!index == -1) { 
+            targetArray.splice(index, 1); // remove the object at index (i)
+        }
     }
 
     mouseDownListener(parent) {

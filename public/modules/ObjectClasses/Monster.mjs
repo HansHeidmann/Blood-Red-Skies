@@ -21,6 +21,7 @@ class Monster {
 
     dead;
 
+    health;
     speed;
     attackingSpeed;
     targettingPlayer;
@@ -65,23 +66,10 @@ class Monster {
         gameView.monstersLayer.addChild(this.sprite);
         this.sprite.displayGroup = gameView.monstersLayer;
         
-        // X, Y position 
-        this.setPosition();
-        
-        
         // Width and Height
         let size = 60;
         this.sprite.width = size;
         this.sprite.height = size;
-
-        // Movement prep, Start out alive and wandering
-        this.dead = false;
-        this.speed = .8;
-        this.attackingSpeed = 1.5;
-        this.sprite.rotation = Math.random() * 2*3.14;
-        this.targettingPlayer = false;
-        this.targettingDistance = 260;
-        this.maxWanderingDistance = 500;
 
         // Duplicate Sprite for Red Tinting when Hit
         this.img = "../../img/GameView/vampire/vampire_standing.png";
@@ -93,10 +81,24 @@ class Monster {
         this.tintSprite.displayGroup = gameView.monstersLayer;
         this.tintSprite.width = size;
         this.tintSprite.height = size;
-        this.tintSprite.rotation = this.sprite.rotation;
-        this.tintSprite.alpha = 0;
         this.tintSprite.tint = 16711680;
         gameView.monstersTintLayer.addChild(this.tintSprite); // add tint-sprite to gameView
+
+         // Movement prep, Start out alive and wandering
+         this.speed = .6;
+         this.attackingSpeed = 1.5;
+         this.targettingDistance = 222;
+         this.maxWanderingDistance = 430;
+         this.respawn();
+    }
+
+    respawn() {
+        this.dead = false;
+        this.health = 100; 
+        this.tintSprite.alpha = 0; // reset damage indicator (red tint)
+        this.sprite.rotation = Math.random() * 2*Math.PI; // start out facing random direction
+        (Math.floor(Math.random()*10) == 0) ? this.targettingPlayer = true : this.targettingPlayer = false;
+        this.setPosition();
     }
 
     setPosition() {
@@ -112,7 +114,6 @@ class Monster {
     }
 
     move(w,a,s,d) {
-
         if (this.targettingPlayer) {
             // rotate towards player
             this.rotateTowards(this.player);
@@ -139,6 +140,20 @@ class Monster {
                     this.sprite.rotation += (-Math.PI/32 + Math.random()*Math.PI/16);
                 }
             
+            } else if (this.distanceTo(this.player) > this.maxWanderingDistance + 100) {
+                // stop targetting but head in general direction of player
+                this.targettingPlayer = false;
+                // rotate towards player
+                this.rotateTowards(this.player);
+                // move forward
+                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                
+            } else {
+                this.sprite.rotation += (-Math.PI/5 + Math.random()*Math.PI/5);
+                // move forward
+                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
             }
 
         }
@@ -208,6 +223,19 @@ class Monster {
         }
         return false;
 
+    }
+
+    takeDamage(bulletType) {
+        this.health -= 5; //bulletType.damage;
+        if (this.health <= 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        console.log("monster died!");
+        this.gameView.score += 100;
+        this.respawn();
     }
 
     distanceTo(otherObject) {

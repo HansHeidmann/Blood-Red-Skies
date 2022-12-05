@@ -19,20 +19,20 @@ class KeyboardHandler {
 
     handle(parent) {
         window.onkeydown = function keyEvent(event) {
-            if(event.key == "w") {
+            if(event.key == "w" || event.key == "W") {
                 //console.log("w");
                 parent.wKeyDown = true;
             }
-            if(event.key == "a") {
+            if(event.key == "a" || event.key == "A") {
                 //console.log("a");
                 parent.aKeyDown = true;
             }
-            if(event.key == "s") {
+            if(event.key == "s" || event.key == "S") {
                 //console.log("s");
                 parent.sKeyDown = true;
             }
-            if(event.key == "d") {
-                //onsole.log("d");
+            if(event.key == "d" || event.key == "D") {
+                //console.log("d");
                 parent.dKeyDown = true;
             }
             if(event.key == " ") {
