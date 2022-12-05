@@ -134,6 +134,8 @@ export default class GameView {
         this.guiLayer.addChild(this.gui.scoreSprite);
 
         
+        // increment time by 1 every 1000 milliseconds
+        setInterval(this.increaseTime, 1000, this);
 
         // main game loop ticker
         this.game.ticker.add((delta) => this.loop());
@@ -239,11 +241,11 @@ export default class GameView {
             // debug
             //this.health -= .8;
             // increase survival time and update gui text with values
-            this.time += 0.1;
+            //this.time += 0.1;
 
             // update gui text
             this.gui.updateHealthText(this.health);
-            this.gui.updateTimeText(this.time);
+            
 
             // Get current state of movement keys
             let wKey = this.keyboardHandler.wKeyDown;
@@ -290,7 +292,24 @@ export default class GameView {
                     }
                 }
                 
-        
+                // Wait to walk if bumping into another monster
+                for (let z=0; z<this.monsters.length; z++) {
+                    let otherMonster = this.monsters[z];
+                    if (otherMonster != tempMonster) {
+                        if (tempMonster.hitTestCircle(otherMonster.sprite.x, otherMonster.sprite.y, 25)) {
+                            if (!otherMonster.waitingToMove) {
+                                //tempMonster.waitingToMove = true;
+                                tempMonster.waitToMove(1000);
+                            }
+                        }
+                        // if (!tempMonster.hitTestCircle(otherMonster.sprite.x, otherMonster.sprite.y, 25)) {
+                        //     //if (!otherMonster.waitingToMove) {
+                        //         otherMonster.waitingToMove = false;
+                        //     //}
+                        // }
+                    }
+                    
+                }
                 
                 // Check to see if Bullet hit a Monster
                 for (let b=0; b<this.bullets.length; b++) { // loop through all bullets
@@ -321,7 +340,7 @@ export default class GameView {
                         
                         
                         // tint hit monster slightly more red
-                        tempMonster.tintSprite.alpha += 0.05;
+                        //tempMonster.tintSprite.alpha += 0.05;
 
                         tempMonster.takeDamage();
 
@@ -357,6 +376,11 @@ export default class GameView {
         var bloodDiv = document.getElementById("bloodArray");
         bloodDiv.innerHTML = "monsters[].length = " + this.monsters.length + "    " + this.monstersLayer;
         
+    }
+
+    increaseTime(gameView) {
+        gameView.time++;
+        gameView.gui.updateTimeText(gameView.time);
     }
 
     increaseScore(amount) {

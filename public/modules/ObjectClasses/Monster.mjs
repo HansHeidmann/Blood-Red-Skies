@@ -24,6 +24,7 @@ class Monster {
     health;
     speed;
     attackingSpeed;
+    waitingToMove;
     targettingPlayer;
     targettingDistance;
     maxWanderingDistance;
@@ -95,6 +96,7 @@ class Monster {
     respawn() {
         this.dead = false;
         this.health = 100; 
+        this.waitingToMove = false;
         this.tintSprite.alpha = 0; // reset damage indicator (red tint)
         this.sprite.rotation = Math.random() * 2*Math.PI; // start out facing random direction
         (Math.floor(Math.random()*10) == 0) ? this.targettingPlayer = true : this.targettingPlayer = false;
@@ -114,49 +116,53 @@ class Monster {
     }
 
     move(w,a,s,d) {
-        if (this.targettingPlayer) {
-            // rotate towards player
-            this.rotateTowards(this.player);
-            // move forward
-            this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
-            this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
-
-        } else {
-
-            if (this.distanceTo(this.player) < this.maxWanderingDistance) {
-            
-                // see if player is within range to attack
-                if (this.distanceTo(this.player) < this.targettingDistance) {
-                    this.targettingPlayer = true;
-                }
-
-                // move forward
-                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.speed;
-                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.speed;
-                
-                // maybe turn a bit, randomly
-                let chance = Math.floor(Math.random()*3);
-                if (chance == 0) {
-                    this.sprite.rotation += (-Math.PI/32 + Math.random()*Math.PI/16);
-                }
-            
-            } else if (this.distanceTo(this.player) > this.maxWanderingDistance + 100) {
-                // stop targetting but head in general direction of player
-                this.targettingPlayer = false;
+        if(!this.waitingToMove) {
+            if (this.targettingPlayer) {
                 // rotate towards player
                 this.rotateTowards(this.player);
                 // move forward
-                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
-                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
-                
+                let randomSpeedVariance = Math.random()*1;
+                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed + randomSpeedVariance;
+                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed + randomSpeedVariance;
+    
             } else {
-                this.sprite.rotation += (-Math.PI/5 + Math.random()*Math.PI/5);
-                // move forward
-                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
-                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+    
+                if (this.distanceTo(this.player) < this.maxWanderingDistance) {
+                
+                    // see if player is within range to attack
+                    if (this.distanceTo(this.player) < this.targettingDistance) {
+                        this.targettingPlayer = true;
+                    }
+    
+                    // move forward
+                    this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.speed;
+                    this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.speed;
+                    
+                    // maybe turn a bit, randomly
+                    let chance = Math.floor(Math.random()*3);
+                    if (chance == 0) {
+                        this.sprite.rotation += (-Math.PI/32 + Math.random()*Math.PI/16);
+                    }
+                
+                } else if (this.distanceTo(this.player) > this.maxWanderingDistance + 100) {
+                    // stop targetting but head in general direction of player
+                    this.targettingPlayer = false;
+                    // rotate towards player
+                    this.rotateTowards(this.player);
+                    // move forward
+                    this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                    this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                    
+                } else {
+                    //this.sprite.rotation += (-Math.PI/5 + Math.random()*Math.PI/5);
+                    // move forward
+                    this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                    this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                }
+    
             }
-
         }
+        
 
         // WASD - move monsters with map and everything 
         if((w && a) || (a && s) || (s && d) || (d && w)) {
@@ -225,16 +231,35 @@ class Monster {
 
     }
 
-    takeDamage(bulletType) {
-        this.health -= 5; //bulletType.damage;
-        if (this.health <= 0) {
-            this.die();
+    hitTestCircle(objectX, objectY, objectRadius) {
+        let distX = objectX - this.sprite.x;
+        let distY = objectY - this.sprite.y;
+        let radiusSum = 25+objectRadius;
+        return Math.hypot(distX, distY) <= radiusSum;
+    }
+
+    waitToMove(time) {
+        //console.log("waiting");
+        if (!this.waitingToMove) {
+            this.waitingToMove = true;
+            setTimeout(this.stopWaiting, time, this);
         }
+        
+    }
+
+    stopWaiting(context) {
+        console.log("done waiting");
+        context.waitingToMove = false;
+    }
+
+    takeDamage(bulletType) {
+        this.health -= 10; //bulletType.damage;
+        this.health <= 0 ? this.die() : this.tintSprite.alpha = (100-this.health)/100;
     }
 
     die() {
         console.log("monster died!");
-        this.gameView.score += 100;
+        this.gameView.increaseScore(100);
         this.respawn();
     }
 
