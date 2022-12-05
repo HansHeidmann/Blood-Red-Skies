@@ -21,20 +21,16 @@ export default class GameOverView {
 
         // post button
         this.postButton = document.getElementById('post-button');
-        this.postButton.onclick = this.gotoLeaderboardView.bind(this);
-        
-
-        // debug
-        console.log('this.viewController:');
-        console.log(this.viewController);
+        this.postButton.onclick = this.gotoSubmitView.bind(this);
+    
     }
 
     gotoGameView() {
         this.viewController.switchView('game');
     }
 
-    gotoLeaderboardView() {
-        this.viewController.switchView('leaderboard');
+    gotoSubmitView() {
+        this.viewController.switchView('submit');
     }
 
     load() {

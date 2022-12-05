@@ -1,3 +1,5 @@
+import { getData } from '../FirebaseManager.mjs';
+
 export default class LeaderboardView {
     
     viewController;
@@ -5,6 +7,8 @@ export default class LeaderboardView {
     backButton;
     table;
     rows;
+    scoreCols;
+    nameCols;
 
     constructor(viewController) {
 
@@ -17,6 +21,8 @@ export default class LeaderboardView {
         // prepare table
         this.table = document.getElementById('leaderboard-table');
         this.rows = [];
+        this.scoreCols = [];
+        this.nameCols = [];
         this.createTable();
     }
 
@@ -27,6 +33,8 @@ export default class LeaderboardView {
 
     load() {
         console.log("loading leaderboardview...")
+
+        this.populateTable();
         
     }
 
@@ -36,8 +44,11 @@ export default class LeaderboardView {
 
     createTable() {
         const totalRows = 10;
-        
-        for (let row=0; row<totalRows; row++) {
+        this.createRows(10);
+    }
+
+    createRows(amount) {
+        for (let row=0; row<amount; row++) {
             let rowDiv = document.createElement("div");
             rowDiv.style.position = "relative";
             rowDiv.style.height = "7.5%";
@@ -48,14 +59,39 @@ export default class LeaderboardView {
             rowDiv.style.fontSize = "30px";
             this.table.appendChild(rowDiv);
             this.rows.push(rowDiv);
+
+            this.createCols(rowDiv);
         }
-        this.populateTable();
+    }
+
+    createCols(row) {
+        let scoreCol = document.createElement("div");
+        scoreCol.style.display = "inline-block";
+        scoreCol.style.paddingRight = "10%";
+        scoreCol.style.alignItems = "right";
+        let nameCol = document.createElement("div");
+        nameCol.style.display = "inline-block";
+        nameCol.style.paddingLeft = "10%";
+        scoreCol.style.alignItems = "left";
+        row.appendChild(scoreCol);
+        row.appendChild(nameCol);
+        this.scoreCols.push(scoreCol);
+        this.nameCols.push(nameCol);
     }
     
-    populateTable() {
-        for (let i=0; i<this.rows.length; i++) {
-            this.rows[i].innerHTML = i + 1;
-        }
+    async populateTable() {
+
+        let limit = 10; //get 10 scores
+        let leaderboardData = await getData(limit);
+
+        let index = 0;
+        leaderboardData.forEach((doc) => {
+            //console.log(`${doc.id} => ${doc.data().score}`);
+            this.scoreCols[index].innerHTML = doc.data().score;
+            this.nameCols[index].innerHTML = doc.data().name;
+            index++;
+        });
+        
     }
 
     

@@ -2,6 +2,10 @@ import MenuView from '../modules/Views/MenuView.mjs';
 import GameView from '../modules/Views/GameView.mjs';
 import GameOverView from '../modules/Views/GameOverView.mjs';
 import LeaderboardView from '../modules/Views/LeaderboardView.mjs';
+import SubmitView from './Views/SubmitView.mjs';
+
+//import FirebaseManager from './FirebaseManager.mjs';
+
 
 let instance = null; // Singleton Pattern
 
@@ -11,6 +15,8 @@ export default class ViewController {
     #elems = {};
     #views = {};
 
+    FBManager;
+
     constructor() {
 
         if(!instance) {
@@ -18,20 +24,23 @@ export default class ViewController {
         }
 
         this.#elems.menu = document.getElementById('menu-view');
-        this.#elems.leaderboard = document.getElementById('leaderboard-view');
         this.#elems.game = document.getElementById('game-view');
         this.#elems.gameOver = document.getElementById('gameover-view');
+        this.#elems.submit = document.getElementById('submit-view');
+        this.#elems.leaderboard = document.getElementById('leaderboard-view');
 
 
         this.menu = new MenuView(this);
         this.game = new GameView(this);
         this.gameOver = new GameOverView(this);
         this.leaderboard = new LeaderboardView(this);
+        this.submit = new SubmitView(this);
 
         this.#views.menu = this.menu;
-        this.#views.leaderboard = this.leaderboard;
         this.#views.game = this.game;
         this.#views.gameOver = this.gameOver;
+        this.#views.leaderboard = this.leaderboard;
+        this.#views.submit = this.submit;
 
         return instance; // Singleton Pattern
 

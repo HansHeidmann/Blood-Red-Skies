@@ -8,7 +8,11 @@
         <link rel="stylesheet" href="css/style.css" type="text/css">
         <script src="https://pixijs.download/release/pixi.js"></script>
         <script src="/lib/howler.min.js"></script>
+        <!-- <script type="module" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+        <script type="module" src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+        -->
         <script type="module" src="main.js"></script>
+        <script type="module" src="modules/FirebaseManager.mjs"></script>
         
     </head>
 
@@ -22,13 +26,6 @@
                 <button id="leaderboards-button">LEADERBOARD</button>
             </div>
 
-            <!-- LEADERBOARD VIEW -->
-            <div id="leaderboard-view" style="display:none;">
-                <div id="leaderboard-title-text">LEADERBOARD</div>
-                <button id="back-button">BACK</button>
-                <div id="leaderboard-table"></div>
-            </div>
-
             <!-- GAME VIEW -->
             <div id="game-view" style="display:none;"></div>
 
@@ -39,7 +36,24 @@
                 <div id="highscore-text">HIGHSCORE:</div>
                 <button id="retry-button">TRY AGAIN</button>
                 </br></br>
-                <button id="post-button">POST SCORE</button>
+                <button id="post-button">POST HIGHSCORE</button>
+            </div>
+
+            <!-- SUBMIT VIEW -->
+            <div id="submit-view" style="display:none;">
+                <div id="submit-form">
+                    <div>ENTER YOUR NAME:</div>
+                    <input type="text" id="name-field" name="username" maxlength="20">
+                    <br>
+                    <button id="submit-button">SUBMIT</button>
+                </div>
+            </div>
+
+            <!-- LEADERBOARD VIEW -->
+            <div id="leaderboard-view" style="display:none;">
+                <div id="leaderboard-title-text">LEADERBOARD</div>
+                <button id="back-button">BACK</button>
+                <div id="leaderboard-table"></div>
             </div>
         </div>
 
