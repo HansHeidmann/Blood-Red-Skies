@@ -1,0 +1,60 @@
+My name is Hans Heidmann and I made a game called Blood Red Skies for my final project
+
+Today is December 6th, and I have not heard back from my project partner in over 3 weeks, so all of the work you will see in this demonstration is my own.
+
+In the previous demonstration, I showed my working MVC system and have added a couple more views since then.
+
+There are now views for the main menu, the game itself, a game over screen for when you die, a submit screen where you can add your name to submit a high score, and finally the leaderboard view itself where you can see the global highscore data.
+
+To do all of the artwork for this game, I used a web app called photopea, which is a free photoshop clone. It is available at photopea.com and I can't recommend it more if you need photoshop but can't afford it right now.
+
+When I hit this play button, the controller will take me to the actual game.
+
+The way I built it, the constructors for all of the different views in this game actually completed their job while the game was loading on the title screen, so all of my objects for the monsters, the plants, the ground, the player, the GUI and so on are all ready to go. 
+
+The important thing that happens whenever this scene loads or reloads is the reset function, which is where all of the game variables return to their default state.
+
+I used a library called PIXI.js to handle image rendering. I was initially going to do it using just vanilla javascript and the canvas element, but it turns out you can't really rotate anything that way without using multiple canvases or other obnoxious solutions and my game design requires a lot of rotation.
+
+Thankfully pixi can be used in a very lightweight manner if you don't want to use it for aspects other than image loading, rotation, width, height, and x,y location.
+
+The only other library I used was howler.js for audio. I made my own AudioPlayer library but used howler within that to create objects that hold the actual .mp3 files. Even though I barely touched on howler's functionality, I was thankful to discover it allows you to modify the speed of the sound, because I used that with a little bit of randomization with my single footstep sound to make each footstep sound unique.
+
+To make the in-game environment a little less boring, I took Bruce's advice from the lecture on Flyweight and used it to generate some random plants from a couple unique tree type objects. The Flyweight Pattern ended up being a great choice to achieve this. I used the slides as a guide but the trees being planted in my forest ended up looking a lot more like shrubbery, so I decided to place them in a container with a z-index below the player and monsters, since it looked more natural to walk over them. 
+
+// STRATEGY PATTERN
+
+* gun switching gameplay *
+
+As you can see, I made it possible to use 3 different guns - a pistol, machine gun, and a shotgun. 
+
+something about all the gun variables and functions
+
+I used the strategy pattern to cause different outcomes when different guns are fired, which includes the amounts of bullets, different bullet sizes, bullet spray for the shotgun, different reload times, and so on. I found the pattern to fit really well for this purpose.
+
+
+
+// LEADERBOARD
+
+Alright, let's take a look at the leaderboard. So, I decided to give Google's firebase service a try to include a push / pull system in my game so that players could compete to have their name on the top of the chart.
+
+I actually plan to make it a bit prettier, but I ran out of time for now, since there were so many other parts of the game that were higher in priority to finish by the deadline.
+
+The important thing is it works and actually goes through the internet, as opposed to being a locally hosted database, meaning any computer that visits the page it is hosted on will be able to compete, not just the people who use my computer. 
+
+I built a class called firebase manager that allows me to easily push/pull data to/from the leaderboard collection I created within my database.
+
+I discovered that I am actually able to run a query that tells the firebase server to pre-sort my data by "score" and limit it to the 10 objects with the highest value for score before handing me any data, which is much better than than how I started out - which was doing an excessively large amount of reads to pull everything, then filtering and sorting with my own code.
+
+I added a little back button here that tells my View Controller to return to the title screen.
+
+
+
+
+
+
+
+ 
+
+
+ 
