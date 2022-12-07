@@ -31,7 +31,7 @@ class PistolStrategy {
 
     resetGun() {
         this.owned = true;
-        this.ammo = 50;
+        this.ammo = 100;
         this.reloadSpeed = 300;
         this.canShoot = true;
         this.canReload = true;

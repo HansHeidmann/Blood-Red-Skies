@@ -9,6 +9,7 @@ class Player {
     radius; 
 
     img;
+    sprites;
     sprite;
 
     mouseAngle;
@@ -21,18 +22,18 @@ class Player {
         this.gameView = gameView;
         
         // Sprite Initialization
-        this.img = "../../img/GameView/player.png";
-        this.sprite = PIXI.Sprite.from(this.img);
-        this.sprite.anchor.set(0.5);
-        
-        // X and Y position
-        this.sprite.x = this.gameView.game.screen.width/2;
-        this.sprite.y = this.gameView.game.screen.height/2;
+        this.sprites = {
+            pistol: PIXI.Sprite.from("../../img/GameView/player_pistol.png"),
+            rifle: PIXI.Sprite.from("../../img/GameView/player_rifle.png"),
+            shotgun: PIXI.Sprite.from("../../img/GameView/player_shotgun.png")
+        }
+        this.sprite = this.sprites['pistol'];
+        this.resetSpriteProperties();
+        this.gameView.playerLayer.addChild(this.sprite);
         this.sprite.displayGroup = gameView.playerLayer;
         
         // Width, Height
-        this.sprite.width = 100;
-        this.sprite.height = 100;
+        
         this.radius = 25;
 
         // start rotating the player sprite towards the mouse
@@ -42,6 +43,23 @@ class Player {
         this.gunLength = 50;
 
 
+    }
+
+    changeGun(gunType) {
+        let rotation = this.sprite.rotation;
+        this.gameView.playerLayer.removeChild(this.sprite)
+        this.sprite = this.sprites[gunType];
+        this.resetSpriteProperties();
+        this.sprite.rotation = rotation;
+        this.gameView.playerLayer.addChild(this.sprite)
+    }
+
+    resetSpriteProperties() {
+        this.sprite.width = 100;
+        this.sprite.height = 100;
+        this.sprite.anchor.set(0.5);
+        this.sprite.x = this.gameView.game.screen.width/2;
+        this.sprite.y = this.gameView.game.screen.height/2;
     }
     
     rotate(sprite, parent) {
@@ -67,6 +85,7 @@ class Player {
     takeDamage() {
         this.gameView.health -= 3;
     }
+
 
 
 

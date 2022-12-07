@@ -126,7 +126,6 @@ export default class GameView {
 
         // add player
         this.player = new Player(this);
-        this.playerLayer.addChild(this.player.sprite);
 
         // add gui
         this.gui = new GUI(this);
@@ -519,6 +518,8 @@ export default class GameView {
             targetIndex = 0;
         }
         this.currentGun = this.guns[keys[targetIndex]];
+
+        this.player.changeGun(this.currentGun.type);
 
         this.gui.updateAmmoText(this.currentGun.ammo);
     }

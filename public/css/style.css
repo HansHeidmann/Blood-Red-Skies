@@ -3,7 +3,6 @@
 html,body{
     margin:0;
 
-    /* text-align: center; */
 }
 body {
     font-family: 'VT323', monospace;
@@ -11,6 +10,7 @@ body {
     background-color: rgb(0, 0, 0);
     
     cursor:url(../img/GameView/crosshair.png), auto;
+    cursor:url(../img/GameView/crosshair.png), pointer;
 
     /* unselectable ~ make nothing selectable */
     -webkit-touch-callout: none;
@@ -32,6 +32,11 @@ canvas {
   image-rendering: crisp-edges; 
   
   image-rendering: optimizeQuality;
+}
+
+#controls-info {
+  margin-left: 20px;
+  font-size: 30px;;
 }
 
 #game-container {
