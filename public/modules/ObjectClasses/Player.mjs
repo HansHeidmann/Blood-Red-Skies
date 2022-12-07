@@ -1,5 +1,3 @@
-import { Bullet } from '../ObjectClasses/Bullet.mjs';
-
 class Player {
     
     gameView;
@@ -7,14 +5,14 @@ class Player {
     x;
     y;
     width;
-    height; 
+    height;
+    radius; 
 
     img;
     sprite;
 
     mouseAngle;
 
-    ammo;
     gunLength;
 
 
@@ -32,15 +30,15 @@ class Player {
         this.sprite.y = this.gameView.game.screen.height/2;
         this.sprite.displayGroup = gameView.playerLayer;
         
-        // Width and Height
+        // Width, Height
         this.sprite.width = 100;
         this.sprite.height = 100;
+        this.radius = 25;
 
         // start rotating the player sprite towards the mouse
         this.rotate(this.sprite, this);
 
         // Gun and Ammo preparations
-        this.ammo = 10;
         this.gunLength = 50;
 
 
@@ -69,6 +67,10 @@ class Player {
             // tell player to rotate
             parent.sprite.rotation = parent.mouseAngle;
         }
+    }
+
+    takeDamage() {
+        this.gameView.health -= 3;
     }
 
 

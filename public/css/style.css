@@ -48,6 +48,18 @@ canvas {
   text-align: center;
 }
 
+#loading-text {
+  position: relative;
+  top:55%;
+  font-size: 35px;
+}
+
+#loading-binary {
+  position: relative;
+  top:55%;
+  font-size: 35px;
+}
+
 #play-button {
   position: relative;
   top: 45%;

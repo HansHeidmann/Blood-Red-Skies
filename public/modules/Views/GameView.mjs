@@ -2,8 +2,11 @@ import { KeyboardHandler } from '../ObjectClasses/KeyboardHandler.mjs';
 import { AudioPlayer } from '../AudioPlayer.mjs';
 import { Player } from '../ObjectClasses/Player.mjs';
 import { Monster } from '../ObjectClasses/Monster.mjs';
-import { Bullet } from '../ObjectClasses/Bullet.mjs';
+import { PistolStrategy } from '../ObjectClasses/GunStrategy/PistolStrategy.mjs';
+import { RifleStrategy } from '../ObjectClasses/GunStrategy/RifleStrategy.mjs';
+import { ShotgunStrategy } from '../ObjectClasses/GunStrategy/ShotgunStrategy.mjs';
 import { Ground } from '../ObjectClasses/Ground.mjs';
+import { Forest } from '../ObjectClasses/FoliageFlyweight/Forest.mjs';
 import { Blood } from '../ObjectClasses/Blood.mjs';
 import { GUI } from '../ObjectClasses/GUI.mjs';
 
@@ -19,7 +22,6 @@ export default class GameView {
     // keyboard and mouse state handling
     keyboardHandler; 
     mouseDown;
-    mouseUp;
 
     game; // to store PIXI instance
 
@@ -28,6 +30,7 @@ export default class GameView {
 
     gameOver; // Boolean for whether game has ended or not
 
+    nonPlayerSprites;
     ground;
     player;
     bullets;
@@ -38,14 +41,11 @@ export default class GameView {
 
     health;
     time;
-    ammo;
     score;
     highscore;
     guns;
     currentGun;
     moveSpeed;
-
-    bulletsToRemove;
 
 
     constructor(viewController) {
@@ -69,22 +69,19 @@ export default class GameView {
         this.score = 0;
         this.highscore = 0;
         this.moveSpeed = 3;
+        this.canAddMonster = false;
 
-        // empty arrays for monsters, blood, bullets, powerups
+        // empty arrays for non-player game objects
+        this.nonPlayerSprites = [];
         this.monsters = [];
         this.blood = [];
         this.bullets = [];
-        this.bulletsToRemove = [];
-
-        // empty dict for ammo
-        this.ammo = {};
-        this.ammo.pistol = 999;
-        this.ammo.rifle = 100;
-        this.ammo.shotgun = 30;
 
         // guns
-        this.guns = ["pistol"];
-        this.currentGun = this.guns[0];
+        this.guns = {};
+        this.guns.pistol = new PistolStrategy(this);
+        this.guns.rifle = new RifleStrategy(this);
+        this.guns.shotgun = new ShotgunStrategy(this);
 
         // init audio player
         this.audioPlayer = new AudioPlayer();
@@ -107,6 +104,8 @@ export default class GameView {
         this.game.stage.addChild(this.groundLayer);
         this.bloodLayer = new PIXI.Container();
         this.game.stage.addChild(this.bloodLayer);
+        this.treesLayer = new PIXI.Container();
+        this.game.stage.addChild(this.treesLayer);
         this.bulletsLayer = new PIXI.Container();
         this.game.stage.addChild(this.bulletsLayer);
         this.monstersLayer = new PIXI.Container();
@@ -121,6 +120,9 @@ export default class GameView {
         // add ground
         this.ground = new Ground(this);
         this.groundLayer.addChild(this.ground.sprite);
+
+        // add forest
+        this.forest = new Forest(this);
 
         // add player
         this.player = new Player(this);
@@ -151,7 +153,7 @@ export default class GameView {
     load() {
         console.log("loading game view...")
         this.reset();
-       
+        
     }
 
     stopGame() {
@@ -162,6 +164,16 @@ export default class GameView {
 
     clean() {
         console.log("GAME OVER.. cleaning up GameView");
+
+        // clean forest
+        for (let index in this.forest.trees) {
+            this.forest.trees[index] = null;
+            
+        }
+        this.forest.trees = []
+        for (var i = this.treesLayer.children.length-1; i>= 0; i--) {	
+              this.treesLayer.removeChild(this.treesLayer.children[i]);
+        }
 
         // clean monsters
         while (this.monsters.length > 0) {
@@ -196,32 +208,48 @@ export default class GameView {
         this.health = 100;
         this.time = 0;
         this.score = 0;
+        this.canAddMonster = false;
 
-        // Blood and bullets arrays (empty)
+        // Empty non-player gameObject arrays
+        this.nonPlayerSprites = [];
         this.blood = [];
         this.bullets = [];
-
-        // ammo
-        this.ammo.pistol = 999;
-        this.ammo.rifle = 100;
-        this.ammo.shotgun = 30;
+        this.monsters = [];
 
         // guns
-        this.guns = ["pistol"];
-        this.currentGun = this.guns[0];
+        for (let key in this.guns) {
+            this.guns[key].resetGun();
+        }
+        this.guns.pistol.owned = true;
+        this.currentGun = this.guns.pistol;
 
         // add monsters 
-        let totalMonsters = 10;
-        this.monsters = [];
+        let totalMonsters = 2;
         for (let m=0; m<totalMonsters; m++) {
-            let tempMonster = new Monster(this);
-            this.monsters.push(tempMonster);
+            let monster = new Monster(this);
+            this.monsters.push(monster);
         }
+
+        // add trees
+        for (let t=0; t<3000; t++) {
+            let x = -5000 + Math.floor(Math.random() * 10000);
+            let y = -5000 + Math.floor(Math.random() * 10000);
+            this.forest.plantTree(x, y, "random");
+        }
+        this.forest.draw(this);
+
+        // populate non-player gameObjects array for WASD camera movement
+        for (let index in this.monsters) {
+            this.nonPlayerSprites.push(this.monsters[index].sprite);
+        }
+        this.nonPlayerSprites.push(this.ground.sprite);
+        console.log(this.nonPlayerSprites);
+
 
         // update gui text
         this.gui.updateHealthText(this.health);
         this.gui.updateTimeText(this.time);
-        this.gui.updateAmmoText(this.ammo[this.currentGun]);
+        this.gui.updateAmmoText(this.currentGun.ammo);
         this.gui.updateScoreText(this.score);
 
         
@@ -236,28 +264,58 @@ export default class GameView {
             if (this.health <= 0) {
                 this.gameOver = true;
                 this.stopGame();
+                return;
             }
-
-            // debug
-            //this.health -= .8;
-            // increase survival time and update gui text with values
-            //this.time += 0.1;
+        
+            // add another monster 
+            if (this.time % 5 == 0) {
+                if (this.canAddMonster) {
+                    let monster = new Monster(this);
+                    this.monsters.push(monster);
+                    this.nonPlayerSprites.push(monster.sprite);
+                    this.canAddMonster = false;
+                }
+                
+            } else {
+                if (!this.canAddMonster) {
+                    this.canAddMonster = true;
+                }
+            }
 
             // update gui text
             this.gui.updateHealthText(this.health);
             
+            // check if Mouse Button 1 (left) is Down
+            if(this.mouseDown) {
+                if (this.currentGun.type == "rifle") {
+                    if (this.currentGun.canShoot) {
+                        console.log("machine gunning");
+                        this.shoot();
+                        this.currentGun.canShoot = false;
+                    }
+                }
+            }
 
             // Get current state of movement keys
             let wKey = this.keyboardHandler.wKeyDown;
             let aKey = this.keyboardHandler.aKeyDown;
             let sKey = this.keyboardHandler.sKeyDown;
             let dKey = this.keyboardHandler.dKeyDown;
+            let rKey = this.keyboardHandler.rKeyDown;
 
-            // Move ground under player
-            this.ground.move(wKey, aKey, sKey, dKey);
+            
+
+            // Check if Key Down to Reload Gun
+            if(rKey) {
+                console.log("r key down");
+                this.currentGun.reload();
+            }
 
             // Play walking sound if walking
             if(wKey || aKey || sKey || dKey) {
+                // Move Camera
+                this.moveCamera(wKey, aKey, sKey, dKey);
+                //play sound
                 if(!this.soundOff) {
                     if(!this.audioPlayer.footsteps.playing()) {
                         this.audioPlayer.footsteps.play();
@@ -266,47 +324,49 @@ export default class GameView {
                 }
             }
 
+            
+
             // Bullets 
             for (let i=0; i<this.bullets.length; i++) {
                 // Move all Bullets in bulletsArray
                 let tempBullet = this.bullets[i];
-                tempBullet.move(wKey, aKey, sKey, dKey);
+                tempBullet.move();
             }
 
             // Monsters 
             for (let m=0; m<this.monsters.length; m++) {
                 // Move all Monsters in monsters[] array
-                let tempMonster = this.monsters[m];
-                tempMonster.move(wKey, aKey, sKey, dKey);
-                tempMonster.animate(this);
+                let monster = this.monsters[m];
+                monster.move();
+
+                // Did monster run into player?
+                if (monster.hitTestCircle(this.player)) {
+                    monster.attack(this.player);
+                }
                 
                 // Add some blood below hurt monsters
-                if (tempMonster.tintSprite.alpha > 0.2) {
-                    let chance = Math.floor(Math.random()*(50 - (20 * tempMonster.tintSprite.alpha)));
+                if (monster.tintSprite.alpha > 0.2) {
+                    let chance = Math.floor(Math.random()*(50 - (20 * monster.tintSprite.alpha)));
                     if (chance == 0) {
-                        let bloodX = tempMonster.sprite.x;
-                        let bloodY = tempMonster.sprite.y;
+                        let bloodX = monster.sprite.x;
+                        let bloodY = monster.sprite.y;
                         let tempBlood = new Blood(this, bloodX, bloodY);
                         this.blood.push(tempBlood);
                         this.bloodLayer.addChild(tempBlood.sprite);
+                        this.nonPlayerSprites.push(tempBlood.sprite);
                     }
                 }
                 
-                // Wait to walk if bumping into another monster
+                // Monster waits to walk if bumping into another monster
                 for (let z=0; z<this.monsters.length; z++) {
                     let otherMonster = this.monsters[z];
-                    if (otherMonster != tempMonster) {
-                        if (tempMonster.hitTestCircle(otherMonster.sprite.x, otherMonster.sprite.y, 25)) {
+                    if (otherMonster != monster) {
+                        if (monster.hitTestCircle(otherMonster)) {
                             if (!otherMonster.waitingToMove) {
-                                //tempMonster.waitingToMove = true;
-                                tempMonster.waitToMove(1000);
+                                //monster.waitingToMove = true;
+                                monster.waitToMove(1000);
                             }
                         }
-                        // if (!tempMonster.hitTestCircle(otherMonster.sprite.x, otherMonster.sprite.y, 25)) {
-                        //     //if (!otherMonster.waitingToMove) {
-                        //         otherMonster.waitingToMove = false;
-                        //     //}
-                        // }
                     }
                     
                 }
@@ -315,18 +375,21 @@ export default class GameView {
                 for (let b=0; b<this.bullets.length; b++) { // loop through all bullets
                     let tempBulletX = this.bullets[b].sprite.x; // current bullet X position
                     let tempBulletY = this.bullets[b].sprite.y; // current bullet Y position
-                    if (tempMonster.hitTest(tempBulletX, tempBulletY)) { // is x,y of bullet inside monster's hit radius?
+                    if (monster.hitTest(tempBulletX, tempBulletY)) { // is x,y of bullet inside monster's hit radius?
                         console.log("hit!");
-                        // increase score slightly
-                        this.increaseScore(5);
 
                         // add some blood below the monster
                         let bloodAmount = Math.floor(Math.random()*20); // NEEDS TO BE DIFFERENT FOR GUNS or based on monster damage
-                        let bloodX = tempMonster.sprite.x;
-                        let bloodY = tempMonster.sprite.y;
+                        let bloodX = monster.sprite.x;
+                        let bloodY = monster.sprite.y;
                         this.bloodSplatter(bloodAmount, bloodX, bloodY, 20, 20);
-                       
-                        
+
+                        // deal damage to monster
+                        monster.takeDamage(this.bullets[b].damage);
+
+                        // increase score slightly
+                        this.increaseScore(5);
+
                         // remove the bullet change to queue with object removal function
                         this.bulletsLayer.removeChild(this.bullets[b].sprite);
                         this.bullets[b].sprite.destroy();
@@ -335,18 +398,10 @@ export default class GameView {
                         if (index > -1) { 
                             this.bullets.splice(index, 1); // remove the object at index (i)
                         }
-                        // queue the bullet for removal 
-                        //bulletsToRemove.push(this.bullets[b]);
+                       
                         
-                        
-                        // tint hit monster slightly more red
-                        //tempMonster.tintSprite.alpha += 0.05;
 
-                        tempMonster.takeDamage();
-
-                        if(tempMonster.health <= 0) {
-                            console.log("made it here");
-                        }
+                    
                         
                     }
                 }
@@ -359,22 +414,30 @@ export default class GameView {
             for (let i=0; i<this.blood.length; i++) {
                 // Move all Bullets in bulletsArray
                 let tempBlood = this.blood[i];
-                tempBlood.move(wKey, aKey, sKey, dKey);
                 // fade blood as time passes
                 tempBlood.fade();
                 // Remove the oldest blood whenever maxBlood blood sprites exist 
-                if(this.blood.length >= 1000) {
-                    this.blood[0].sprite.destroy();
-                    this.bloodLayer.removeChild(this.blood[0].sprite);
-                    this.blood[0] = null;
-                    this.blood.shift();
-                }   
-            }
+                // if(this.blood.length >= 1000) {
+                //     this.blood[0].sprite.destroy();
+                //     this.bloodLayer.removeChild(this.blood[0].sprite);
+                //     this.blood[0] = null;
+                //     this.blood.shift();
+
+                //     let index = this.nonPlayerSprites.indexOf(this.blood[0]); 
+                //     if (index > -1) { 
+                //         this.nonPlayerSprites.splice(index, 1); // remove the object at index (i)
+                //     }
+                // } 
+            } 
+
+
+            
+            
         }
 
         // debug
         var bloodDiv = document.getElementById("bloodArray");
-        bloodDiv.innerHTML = "monsters[].length = " + this.monsters.length + "    " + this.monstersLayer;
+        bloodDiv.innerHTML = ""; //"blood[].length = " + this.blood.length;
         
     }
 
@@ -391,32 +454,7 @@ export default class GameView {
         this.gui.updateScoreText(this.score);
     }
     
-
-    shoot() {
-        if (!this.gameOver) {
-            // ifthe player has ammo for their current gun:
-            if (this.ammo[this.currentGun] > 0) {
-                // reduce ammo by 1
-                this.ammo[this.currentGun]--;
-                this.gui.updateAmmoText(this.ammo[this.currentGun]);
-                // play shoot sound
-                if(!this.soundOff) {
-                    this.audioPlayer.gunshot.play();
-                }
-                //setTimeout(this.audioPlayer.play("reload"), 1000); // reload sound
-                // grab the vars from player to orient/positiion a new bullet
-                let shootDirection = this.player.mouseAngle;
-                let gunLength = this.player.gunLength
-                // create a Bullet instance and push it to the bulletsArray
-                let tempBullet = new Bullet(this, shootDirection, gunLength);
-                this.bullets.push(tempBullet);
-                // add the bullet sprite to the game stage
-                this.bulletsLayer.addChild(tempBullet.sprite);
-            }
-            
-        }
-        
-    }
+    
 
     bloodSplatter(amount, x, y, sprayModX, sprayModY) {
         for (let b=0; b<amount; b++) {
@@ -425,6 +463,7 @@ export default class GameView {
             let blood = new Blood(this, x + sprayX, y + sprayY);
             this.blood.push(blood);
             this.bloodLayer.addChild(blood.sprite);
+            this.nonPlayerSprites.push(blood.sprite); // add to WASD camera movement container
         }
     }
 
@@ -439,18 +478,68 @@ export default class GameView {
     }
 
     mouseDownListener(parent) {
-        document.getElementById('game-view').onmousedown = function shootEvent(event) {
+        document.getElementById('game-view').onmousedown = function downEvent(event) {
            parent.shoot();
            parent.mouseDown = true;
         }
-    }
-
-    mouseUpListener(parent) {
-        document.getElementById('game-view').onmousedown = function shootEvent(event) {
-            parent.mouseUp = true;
+        document.getElementById('game-view').onmouseup = function upEvent(event) {
+            parent.mouseDown = false;
+        }
+        document.getElementById('game-view').onwheel = function wheelEvent(event) {
+            if(event.deltaY < 0) {
+                parent.scrollGuns(1);
+            } else if (event.deltaY > 0) {
+                parent.scrollGuns(-1);
+            }
+            
         }
     }
+
    
-    
+    shoot() {
+        if (!this.gameOver) {
+            // ifthe player has ammo for their current gun:
+            if (this.currentGun.ammo > 0) {
+                // use GunStrategy to shoot current gun w/ correct ammo
+                this.currentGun.shoot();
+                this.gui.updateAmmoText(this.currentGun.ammo);
+                
+            }
+        }
+    }
+
+    scrollGuns(dir) {
+        let keys = Object.keys(this.guns);
+        let index = keys.indexOf(this.currentGun.type);
+        let targetIndex = index + dir;
+        if (targetIndex == -1) {
+            targetIndex = keys.length-1;
+        }
+        if (targetIndex == keys.length) {
+            targetIndex = 0;
+        }
+        this.currentGun = this.guns[keys[targetIndex]];
+
+        this.gui.updateAmmoText(this.currentGun.ammo);
+    }
+
+    moveCamera(w, a, s, d) {
+        // Simulate camera movement with WASD keys - move monsters with map and everything 
+        let sprites = this.nonPlayerSprites;
+        for (let index in sprites) {
+            let sprite = sprites[index];
+            if((w && a) || (a && s) || (s && d) || (d && w)) {
+                sprite.y += w * this.moveSpeed * Math.sqrt(2)/2;
+                sprite.x += a * this.moveSpeed * Math.sqrt(2)/2;
+                sprite.y -= s * this.moveSpeed * Math.sqrt(2)/2;
+                sprite.x -= d * this.moveSpeed * Math.sqrt(2)/2;
+            } else {
+                sprite.y += w * this.moveSpeed;
+                sprite.x += a * this.moveSpeed;
+                sprite.y -= s * this.moveSpeed;
+                sprite.x -= d * this.moveSpeed;
+            }
+        }
+    }
 
 }

@@ -25,7 +25,16 @@ export default class SubmitView {
         // add placeholder username
         this.generateUsername();
     }
+    
+    load() {
+        console.log("loading leaderboardview...")
+        
+    }
 
+    gotoLeaderboardView() {
+        this.viewController.switchView('leaderboard');
+    }
+    
     submitScore() {
 
         // do firebase stuff
@@ -37,17 +46,7 @@ export default class SubmitView {
         this.gotoLeaderboardView();
     }
 
-    firebaseStuff() {
-
-        //debug
-        console.log(firebaseApp);
-
-
-    }
-
-    gotoLeaderboardView() {
-        this.viewController.switchView('leaderboard');
-    }
+   
 
     generateUsername() {
         this.randomUsername = "Player--";
@@ -59,14 +58,6 @@ export default class SubmitView {
     }
 
 
-    load() {
-        console.log("loading leaderboardview...")
-        
-    }
-
-    unload() {
-        //
-    }
 
 
     

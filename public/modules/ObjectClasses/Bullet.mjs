@@ -6,10 +6,14 @@ class Bullet {
     img;
     sprite;
 
+    type;
+    damage;
     speed;
+    size;
 
-    constructor(gameView, direction, gunLength) {
+    constructor(gameView, direction, gunType) {
         
+        this.gameView = gameView;
         // Sprite Initialization
         this.img = "../../img/GameView/bullet.png";
         this.sprite = PIXI.Sprite.from(this.img);
@@ -17,23 +21,21 @@ class Bullet {
         
         // X, Y position and Z layer
         this.sprite.rotation = direction;
-        this.sprite.x = gameView.game.screen.width/2 + Math.cos(this.sprite.rotation) * gunLength;
-        this.sprite.y = gameView.game.screen.height/2 + Math.sin(this.sprite.rotation) * gunLength;
+        
         this.sprite.displayGroup = gameView.bulletsLayer;
 
-        
-        // Width and Height
-        this.sprite.width = 20;
-        this.sprite.height = 20;
-
-        // set move Speed
-        this.speed = 15;
+        this.setAttributes(gunType);
 
     }
-    
-
-    shoot() {
-        //console.log("shot!");
+   
+    setAttributes(gunType) {
+        this.type = gunType.type;
+        this.damage = gunType.bulletDamage;
+        this.speed = gunType.bulletSpeed;
+        this.sprite.width = gunType.bulletSize;
+        this.sprite.height = gunType.bulletSize;
+        this.sprite.x = this.gameView.game.screen.width/2 + Math.cos(this.sprite.rotation) * gunType.gunLength;
+        this.sprite.y = this.gameView.game.screen.height/2 + Math.sin(this.sprite.rotation) * gunType.gunLength;
     }
 
     move() {

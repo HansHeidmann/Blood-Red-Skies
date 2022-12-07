@@ -6,8 +6,6 @@ class Blood {
     img;
     sprite;
 
-    playerMoveSpeed;
-
     constructor(gameView, x, y) {
         
         // Sprite Initialization
@@ -26,25 +24,6 @@ class Blood {
         this.sprite.rotation = Math.random() * (2 * Math.PI);
         this.sprite.alpha = Math.random();
 
-        // to move blood to simulate player movement
-        this.playerMoveSpeed = gameView.moveSpeed
-
-    }
-
-    move(w,a,s,d) {
-
-        if((w && a) || (a && s) || (s && d) || (d && w)) {
-            this.sprite.y += w * this.playerMoveSpeed * Math.sqrt(2)/2;
-            this.sprite.y -= s * this.playerMoveSpeed * Math.sqrt(2)/2;
-            this.sprite.x += a * this.playerMoveSpeed * Math.sqrt(2)/2;
-            this.sprite.x -= d * this.playerMoveSpeed * Math.sqrt(2)/2;
-        } else {
-            this.sprite.y += w * this.playerMoveSpeed;
-            this.sprite.y -= s * this.playerMoveSpeed;
-            this.sprite.x += a * this.playerMoveSpeed;
-            this.sprite.x -= d * this.playerMoveSpeed;
-        }
-        
     }
 
     fade() {

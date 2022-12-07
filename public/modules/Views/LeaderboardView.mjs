@@ -26,20 +26,13 @@ export default class LeaderboardView {
         this.createTable();
     }
 
-    gotoMenuView() {
-        this.viewController.switchView('menu');
-    }
-
-
     load() {
         console.log("loading leaderboardview...")
-
         this.populateTable();
-        
     }
 
-    unload() {
-        //
+    gotoMenuView() {
+        this.viewController.switchView('menu');
     }
 
     createTable() {

@@ -6,6 +6,8 @@ export default class MenuView {
     playButton;
     leaderboardButton;
 
+    binaryArray;
+
     constructor(viewController) {
         this.viewController = viewController;
 
@@ -14,6 +16,17 @@ export default class MenuView {
 
         this.leaderboardButton = document.getElementById('leaderboards-button');
         this.leaderboardButton.onclick = this.gotoLeaderboardView.bind(this);
+
+        this.loadingText = document.getElementById('loading-text');
+        this.binaryText = document.getElementById('loading-binary');
+
+        this.binaryArray = [];
+        for (let i=0; i<30; i++) {
+            this.binaryArray.push(Math.floor(Math.random()*2));
+        }
+        this.binaryText.innerHTML = this.binaryArray.join("");
+
+        setTimeout(this.loadButtons, 2000, this);
 
     }
 
@@ -24,6 +37,14 @@ export default class MenuView {
     gotoLeaderboardView() {
         console.log("trying..");
         this.viewController.switchView('leaderboard');
+    }
+
+    loadButtons(parent) {
+        parent.binaryText.style.display = "none";
+        parent.loadingText.style.display = "none";
+
+        parent.playButton.style.display = null;
+        parent.leaderboardButton.style.display = null;
     }
 
     load() {

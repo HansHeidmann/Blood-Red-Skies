@@ -21,9 +21,11 @@
         <div id="game-container" style="width: 600px; height: 600px;">
             <!-- MENU VIEW -->
             <div id="menu-view">
-                <button id="play-button">PLAY</button>
+                <button id="play-button" style="display:none;">PLAY</button>
                 </br></br>
-                <button id="leaderboards-button">LEADERBOARD</button>
+                <button id="leaderboards-button" style="display:none;">LEADERBOARD</button>
+                <div id="loading-text">LOADING...</div>
+                <div id="loading-binary"></div>
             </div>
 
             <!-- GAME VIEW -->
@@ -58,7 +60,7 @@
         </div>
 
         <div id="debug">
-            <div id="bloodArray">Blood</div>
+            <div id="bloodArray"></div>
         </div>
 
     </body>

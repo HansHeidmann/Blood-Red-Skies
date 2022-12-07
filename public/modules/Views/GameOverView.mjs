@@ -25,6 +25,11 @@ export default class GameOverView {
     
     }
 
+    load() {
+        this.scoreText.innerHTML = "SCORE: " + this.viewController.game.score;
+        this.highscoreText.innerHTML = "HIGHSCORE: " + this.viewController.game.highscore;
+    }
+
     gotoGameView() {
         this.viewController.switchView('game');
     }
@@ -33,12 +38,5 @@ export default class GameOverView {
         this.viewController.switchView('submit');
     }
 
-    load() {
-        this.scoreText.innerHTML = "SCORE: " + this.viewController.game.score;
-        this.highscoreText.innerHTML = "HIGHSCORE: " + this.viewController.game.highscore;
-    }
 
-    unload() {
-        //
-    }
 }

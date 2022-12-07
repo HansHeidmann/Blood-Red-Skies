@@ -4,15 +4,17 @@ class Monster {
 
     width;
     height; 
+    radius;
 
+    
+    // animationFrames;
+    // animationFrameLength;
+    // animationLength;
+    // animationFrame;
+    // animationFrameTimer;
+    // sprites;
 
-    animationFrames;
-    animationFrameLength;
-    animationLength;
-    animationFrame;
-    animationFrameTimer;
-
-    sprites;
+    frames;
     sprite;
 
     img;
@@ -23,14 +25,16 @@ class Monster {
 
     health;
     speed;
-    attackingSpeed;
+    attackingRunSpeed;
     waitingToMove;
     targettingPlayer;
     targettingDistance;
     maxWanderingDistance;
 
+    attackSpeed;
+    canAttack;
+
     player;
-    playerMoveSpeed;
 
 
     constructor(gameView) {
@@ -40,37 +44,58 @@ class Monster {
 
         // player ref
         this.player = gameView.player.sprite;
-        this.playerMoveSpeed = gameView.moveSpeed;
         
         // Sprite Initialization
         
         //this.sprite = PIXI.Sprite.from(this.img);
         //this.sprite.anchor.set(0.5);
-        this.animationFrames = 8;
-        this.animationFrameLength = 5;
-        this.animationLength = this.animationFrames * this.animationFrameLength;
-        this.animationFrame = 0;
-        this.animationFrameTimer = 0;
+        // this.animationFrames = 8;
+        // this.animationFrameLength = 5;
+        // this.animationLength = this.animationFrames * this.animationFrameLength;
+        // this.animationFrame = 0;
+        // this.animationFrameTimer = 0;
 
-        this.sprites = [
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_standing.png"),
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_1.png"),
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_2.png"),
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_1.png"),
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_standing.png"),
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_3.png"),
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_4.png"),
-            PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_3.png")
+        // this.sprites = [
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_standing.png"),
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_1.png"),
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_2.png"),
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_1.png"),
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_standing.png"),
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_3.png"),
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_4.png"),
+        //     PIXI.Sprite.from("../../img/GameView/vampire/vampire_walk_3.png")
+        // ];
+        //
+        //this.sprite = this.sprites[0];
+
+        this.frames = [
+            "../../img/GameView/vampire/vampire_standing.png",
+            "../../img/GameView/vampire/vampire_walk_1.png",
+            "../../img/GameView/vampire/vampire_walk_2.png",
+            "../../img/GameView/vampire/vampire_walk_1.png",
+            "../../img/GameView/vampire/vampire_standing.png",
+            "../../img/GameView/vampire/vampire_walk_3.png",
+            "../../img/GameView/vampire/vampire_walk_4.png",
+            "../../img/GameView/vampire/vampire_walk_3.png"
         ];
-        this.sprite = this.sprites[0];
-        this.sprite.anchor.set(0.5);
-        gameView.monstersLayer.addChild(this.sprite);
-        this.sprite.displayGroup = gameView.monstersLayer;
+
+        this.sprite = PIXI.AnimatedSprite.fromFrames(this.frames);
+        this.sprite.animationSpeed = 1/6;                  // 6 fps
+        //this.sprite.position.set(0,0); // almost bottom-left corner of the canvas
         
         // Width and Height
         let size = 60;
         this.sprite.width = size;
         this.sprite.height = size;
+        console.log(this.sprite.width + " " + this.sprite.height);
+        //this.sprite.updateAnchor = true; 
+        this.sprite.play();
+        this.sprite.anchor.set(0.5);
+
+        gameView.monstersLayer.addChild(this.sprite);
+        this.sprite.displayGroup = gameView.monstersLayer;
+        
+        
 
         // Duplicate Sprite for Red Tinting when Hit
         this.img = "../../img/GameView/vampire/vampire_standing.png";
@@ -82,13 +107,15 @@ class Monster {
         this.tintSprite.displayGroup = gameView.monstersLayer;
         this.tintSprite.width = size;
         this.tintSprite.height = size;
-        this.tintSprite.tint = 16711680;
+        this.tintSprite.tint = "16711680";
         gameView.monstersTintLayer.addChild(this.tintSprite); // add tint-sprite to gameView
 
          // Movement prep, Start out alive and wandering
          this.speed = .6;
-         this.attackingSpeed = 1.5;
+         this.radius = 25;
+         this.attackingRunSpeed = 1.5;
          this.targettingDistance = 222;
+         this.attackSpeed = 300;
          this.maxWanderingDistance = 430;
          this.respawn();
     }
@@ -97,6 +124,7 @@ class Monster {
         this.dead = false;
         this.health = 100; 
         this.waitingToMove = false;
+        this.canAttack = true;
         this.tintSprite.alpha = 0; // reset damage indicator (red tint)
         this.sprite.rotation = Math.random() * 2*Math.PI; // start out facing random direction
         (Math.floor(Math.random()*10) == 0) ? this.targettingPlayer = true : this.targettingPlayer = false;
@@ -115,15 +143,16 @@ class Monster {
         this.sprite.y = this.player.y + (Math.sin(radians) * randomDistance);
     }
 
-    move(w,a,s,d) {
+    move() {
+        this.animate();
         if(!this.waitingToMove) {
             if (this.targettingPlayer) {
                 // rotate towards player
                 this.rotateTowards(this.player);
                 // move forward
                 let randomSpeedVariance = Math.random()*1;
-                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed + randomSpeedVariance;
-                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed + randomSpeedVariance;
+                this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingRunSpeed + randomSpeedVariance;
+                this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingRunSpeed + randomSpeedVariance;
     
             } else {
     
@@ -150,32 +179,19 @@ class Monster {
                     // rotate towards player
                     this.rotateTowards(this.player);
                     // move forward
-                    this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
-                    this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                    this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingRunSpeed;
+                    this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingRunSpeed;
                     
                 } else {
                     //this.sprite.rotation += (-Math.PI/5 + Math.random()*Math.PI/5);
                     // move forward
-                    this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
-                    this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingSpeed;
+                    this.sprite.x += Math.cos(this.sprite.rotation-Math.PI/2) * this.attackingRunSpeed;
+                    this.sprite.y += Math.sin(this.sprite.rotation-Math.PI/2) * this.attackingRunSpeed;
                 }
     
             }
         }
         
-
-        // WASD - move monsters with map and everything 
-        if((w && a) || (a && s) || (s && d) || (d && w)) {
-            this.sprite.y += w * this.playerMoveSpeed * Math.sqrt(2)/2;
-            this.sprite.y -= s * this.playerMoveSpeed * Math.sqrt(2)/2;
-            this.sprite.x += a * this.playerMoveSpeed * Math.sqrt(2)/2;
-            this.sprite.x -= d * this.playerMoveSpeed * Math.sqrt(2)/2;
-        } else {
-            this.sprite.y += w * this.playerMoveSpeed;
-            this.sprite.y -= s * this.playerMoveSpeed;
-            this.sprite.x += a * this.playerMoveSpeed;
-            this.sprite.x -= d * this.playerMoveSpeed;
-        }
 
         // copy and update tintSprite's location, rotation 
         this.tintSprite.rotation = this.sprite.rotation;
@@ -185,56 +201,55 @@ class Monster {
     }
 
     animate() {
-        this.animationFrame = Math.floor(this.animationFrames * this.animationFrameTimer/this.animationLength); //get frame #
-        // debug - animation frame tracking
-        //console.log(this.animationFrameTimer);
-        //console.log(this.animationFrame);
+        // this.animationFrame = Math.floor(this.animationFrames * this.animationFrameTimer/this.animationLength); //get frame #
+        // // debug - animation frame tracking
+        // //console.log(this.animationFrameTimer);
+        // //console.log(this.animationFrame);
         
-        let x = this.sprite.x;
-        let y = this.sprite.y;
-        let w = this.sprite.width;
-        let h = this.sprite.height;
-        let r = this.sprite.rotation;
-        let a = this.sprite.anchor;
+        // let x = this.sprite.x;
+        // let y = this.sprite.y;
+        // let w = this.sprite.width;
+        // let h = this.sprite.height;
+        // let r = this.sprite.rotation;
+        // let a = this.sprite.anchor;
 
-        this.gameView.monstersLayer.removeChild(this.sprite)
+        // this.gameView.monstersLayer.removeChild(this.sprite)
         
-        this.sprite = this.sprites[this.animationFrame];
-        this.sprite.x = x;
-        this.sprite.y = y;
-        this.sprite.width = w;
-        this.sprite.height = h;
-        this.sprite.rotation = r;
-        this.sprite.anchor.set(0.5);
+        // this.sprite = this.sprites[this.animationFrame];
+        // this.sprite.x = x;
+        // this.sprite.y = y;
+        // this.sprite.width = w;
+        // this.sprite.height = h;
+        // this.sprite.rotation = r;
+        // this.sprite.anchor.set(0.5);
         
-        this.gameView.monstersLayer.addChild(this.sprite)
-        
-
-        this.animationFrameTimer++;
-        if (this.animationFrameTimer == this.animationLength) {
-            this.animationFrameTimer = 0;
-        }
+        // this.gameView.monstersLayer.addChild(this.sprite)
+    
+        // this.animationFrameTimer++;
+        // if (this.animationFrameTimer == this.animationLength) {
+        //     this.animationFrameTimer = 0;
+        // }
     }
 
-    hitTest(bulletX, bulletY) {
-        
-        let distX = bulletX - this.sprite.x;
-        let distY = bulletY - this.sprite.y;
+    hitTest(x, y) {
+        let distX = x - this.sprite.x;
+        let distY = y - this.sprite.y;
         let distance = Math.sqrt( (distX*distX) + (distY*distY) );
-      
         // if the distance is less than the circle's
         // radius the point is inside!
         if (distance <= 25) {
           return true;
         }
         return false;
-
     }
 
-    hitTestCircle(objectX, objectY, objectRadius) {
+    hitTestCircle(object) {
+        let objectX = object.sprite.x;
+        let objectY = object.sprite.y;
+        let objectRadius = object.radius;
         let distX = objectX - this.sprite.x;
         let distY = objectY - this.sprite.y;
-        let radiusSum = 25+objectRadius;
+        let radiusSum = objectRadius + this.radius;
         return Math.hypot(distX, distY) <= radiusSum;
     }
 
@@ -248,12 +263,11 @@ class Monster {
     }
 
     stopWaiting(context) {
-        console.log("done waiting");
         context.waitingToMove = false;
     }
 
-    takeDamage(bulletType) {
-        this.health -= 10; //bulletType.damage;
+    takeDamage(amount) {
+        this.health -= amount; //;
         this.health <= 0 ? this.die() : this.tintSprite.alpha = (100-this.health)/100;
     }
 
@@ -277,6 +291,18 @@ class Monster {
         var radians = Math.atan2(deltaX, deltaY)
         // rotate
         monster.rotation = -radians + Math.PI;
+    }
+
+    attack(player) {
+        if (this.canAttack) {
+            player.takeDamage();
+            let timeOut = setTimeout(this.readyToAttack, this.attackSpeed, this);
+            this.canAttack = false;
+        }
+    }
+
+    readyToAttack(parent) {
+        parent.canAttack = true;
     }
     
    
