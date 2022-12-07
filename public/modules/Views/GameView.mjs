@@ -224,7 +224,7 @@ export default class GameView {
         this.currentGun = this.guns.pistol;
 
         // add monsters 
-        let totalMonsters = 2;
+        let totalMonsters = 5;
         for (let m=0; m<totalMonsters; m++) {
             let monster = new Monster(this);
             this.monsters.push(monster);

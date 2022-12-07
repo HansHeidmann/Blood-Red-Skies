@@ -21,9 +21,10 @@ export default class MenuView {
         this.binaryText = document.getElementById('loading-binary');
 
         this.binaryArray = [];
-        for (let i=0; i<30; i++) {
-            this.binaryArray.push(Math.floor(Math.random()*2));
-        }
+        this.binaryArray.push("00110110 00110110 00110110");
+        // for (let i=0; i<30; i++) {
+        //     this.binaryArray.push(Math.floor(Math.random()*2));
+        // }
         this.binaryText.innerHTML = this.binaryArray.join("");
 
         setTimeout(this.loadButtons, 2000, this);

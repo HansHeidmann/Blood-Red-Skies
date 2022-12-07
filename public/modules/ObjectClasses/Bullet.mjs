@@ -7,9 +7,6 @@ class Bullet {
     sprite;
 
     type;
-    damage;
-    speed;
-    size;
 
     constructor(gameView, direction, gunType) {
         

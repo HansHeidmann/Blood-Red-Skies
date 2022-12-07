@@ -34,18 +34,15 @@ export default class SubmitView {
     gotoLeaderboardView() {
         this.viewController.switchView('leaderboard');
     }
-    
-    submitScore() {
 
-        // do firebase stuff
-        this.firebaseStuff()
+    submitScore() {
 
         addData(this.nameField.value, this.viewController.game.score);
 
         // Switch to leaderboard view to show high scores table
         this.gotoLeaderboardView();
-    }
-
+    } 
+ 
    
 
     generateUsername() {

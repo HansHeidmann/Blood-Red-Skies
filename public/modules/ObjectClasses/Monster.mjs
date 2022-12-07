@@ -111,9 +111,9 @@ class Monster {
         gameView.monstersTintLayer.addChild(this.tintSprite); // add tint-sprite to gameView
 
          // Movement prep, Start out alive and wandering
-         this.speed = .6;
+         this.speed = .8;
          this.radius = 25;
-         this.attackingRunSpeed = 1.5;
+         this.attackingRunSpeed = 1.8;
          this.targettingDistance = 222;
          this.attackSpeed = 300;
          this.maxWanderingDistance = 430;
@@ -124,6 +124,7 @@ class Monster {
         this.dead = false;
         this.health = 100; 
         this.waitingToMove = false;
+        this.targettingPlayer = false;
         this.canAttack = true;
         this.tintSprite.alpha = 0; // reset damage indicator (red tint)
         this.sprite.rotation = Math.random() * 2*Math.PI; // start out facing random direction
@@ -262,13 +263,15 @@ class Monster {
         
     }
 
-    stopWaiting(context) {
-        context.waitingToMove = false;
+    stopWaiting(parent) {
+        parent.waitingToMove = false;
     }
 
     takeDamage(amount) {
         this.health -= amount; //;
         this.health <= 0 ? this.die() : this.tintSprite.alpha = (100-this.health)/100;
+        // target player
+        this.targettingPlayer = true;
     }
 
     die() {
@@ -292,7 +295,6 @@ class Monster {
         // rotate
         monster.rotation = -radians + Math.PI;
     }
-
     attack(player) {
         if (this.canAttack) {
             player.takeDamage();

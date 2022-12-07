@@ -44,11 +44,6 @@ class Player {
 
     }
     
-
-    shoot(sprite, parent) {
-       //
-    }
-
     rotate(sprite, parent) {
         document.getElementById('game-view').onmousemove = function clickEvent(event) {
             var gameContainer = event.target.getBoundingClientRect();
