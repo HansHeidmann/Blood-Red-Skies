@@ -1,6 +1,3 @@
 # Blood Red Skies
 
-CSCI 4448 - Final Project
-
-- Team Members: Hans Heidmann
-- Languages: HTML, Javascript, CSS
+Attempt to survive hordes of zombies in the desert with nothing but an arsenal of guns in this 2D top-down survival shooter!
